@@ -8,6 +8,12 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import Mudanzas from "./pages/Mudanzas";
 import MudanzaDetalle from "./pages/MudanzaDetalle";
+import Agentes from "./pages/Agentes";
+import Clientes from "./pages/Clientes";
+import Bodega from "./pages/Bodega";
+import Documentos from "./pages/Documentos";
+import Reportes from "./pages/Reportes";
+import Configuracion from "./pages/Configuracion";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -43,6 +49,54 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <MudanzaDetalle />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/agentes"
+              element={
+                <ProtectedRoute>
+                  <Agentes />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/clientes"
+              element={
+                <ProtectedRoute>
+                  <Clientes />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/bodega"
+              element={
+                <ProtectedRoute>
+                  <Bodega />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/documentos"
+              element={
+                <ProtectedRoute>
+                  <Documentos />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reportes"
+              element={
+                <ProtectedRoute>
+                  <Reportes />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/configuracion"
+              element={
+                <ProtectedRoute>
+                  <Configuracion />
                 </ProtectedRoute>
               }
             />
