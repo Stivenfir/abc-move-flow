@@ -28,78 +28,15 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/auth" element={<Auth />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/mudanzas"
-              element={
-                <ProtectedRoute>
-                  <Mudanzas />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/mudanzas/:id"
-              element={
-                <ProtectedRoute>
-                  <MudanzaDetalle />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/agentes"
-              element={
-                <ProtectedRoute>
-                  <Agentes />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/clientes"
-              element={
-                <ProtectedRoute>
-                  <Clientes />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/bodega"
-              element={
-                <ProtectedRoute>
-                  <Bodega />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/documentos"
-              element={
-                <ProtectedRoute>
-                  <Documentos />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/reportes"
-              element={
-                <ProtectedRoute>
-                  <Reportes />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/configuracion"
-              element={
-                <ProtectedRoute>
-                  <Configuracion />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/mudanzas" element={<Mudanzas />} />
+            <Route path="/mudanzas/:id" element={<MudanzaDetalle />} />
+            <Route path="/agentes" element={<Agentes />} />
+            <Route path="/clientes" element={<Clientes />} />
+            <Route path="/bodega" element={<Bodega />} />
+            <Route path="/documentos" element={<Documentos />} />
+            <Route path="/reportes" element={<Reportes />} />
+            <Route path="/configuracion" element={<Configuracion />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
