@@ -1,12 +1,13 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Filter } from "lucide-react";
+import { Filter } from "lucide-react";
 import { EstadoBadge } from "@/components/mudanzas/EstadoBadge";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useMudanzas } from "@/hooks/useMudanzas";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NuevaMudanzaDialog } from "@/components/mudanzas/NuevaMudanzaDialog";
 
 export default function Mudanzas() {
   const navigate = useNavigate();
@@ -45,10 +46,7 @@ export default function Mudanzas() {
               <Filter className="w-4 h-4 mr-2" />
               Filtros
             </Button>
-            <Button size="lg" className="bg-accent hover:bg-accent-hover">
-              <Plus className="w-4 h-4 mr-2" />
-              Nueva Mudanza
-            </Button>
+            <NuevaMudanzaDialog />
           </div>
         </div>
 
