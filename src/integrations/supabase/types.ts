@@ -14,9 +14,320 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_communications: {
+        Row: {
+          agent_id: string
+          body: string | null
+          cc: string[] | null
+          channel: string
+          created_at: string | null
+          error_message: string | null
+          id: string
+          mudanza_id: string | null
+          payload_url: string | null
+          recipients: string[]
+          sent_at: string | null
+          status: string | null
+          subject: string | null
+          template_id: string | null
+        }
+        Insert: {
+          agent_id: string
+          body?: string | null
+          cc?: string[] | null
+          channel: string
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          mudanza_id?: string | null
+          payload_url?: string | null
+          recipients: string[]
+          sent_at?: string | null
+          status?: string | null
+          subject?: string | null
+          template_id?: string | null
+        }
+        Update: {
+          agent_id?: string
+          body?: string | null
+          cc?: string[] | null
+          channel?: string
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          mudanza_id?: string | null
+          payload_url?: string | null
+          recipients?: string[]
+          sent_at?: string | null
+          status?: string | null
+          subject?: string | null
+          template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_communications_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agentes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_communications_mudanza_id_fkey"
+            columns: ["mudanza_id"]
+            isOneToOne: false
+            referencedRelation: "mudanzas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_financials: {
+        Row: {
+          agent_id: string
+          ap_aging: Json | null
+          ap_total: number | null
+          ar_aging: Json | null
+          ar_total: number | null
+          created_at: string | null
+          id: string
+          net_balance: number | null
+          period: string
+          updated_at: string | null
+        }
+        Insert: {
+          agent_id: string
+          ap_aging?: Json | null
+          ap_total?: number | null
+          ar_aging?: Json | null
+          ar_total?: number | null
+          created_at?: string | null
+          id?: string
+          net_balance?: number | null
+          period: string
+          updated_at?: string | null
+        }
+        Update: {
+          agent_id?: string
+          ap_aging?: Json | null
+          ap_total?: number | null
+          ar_aging?: Json | null
+          ar_total?: number | null
+          created_at?: string | null
+          id?: string
+          net_balance?: number | null
+          period?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_financials_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agentes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_lanes: {
+        Row: {
+          agent_id: string
+          created_at: string | null
+          dest_city: string | null
+          dest_country: string
+          id: string
+          mode: string | null
+          origin_city: string | null
+          origin_country: string
+          service_type: string | null
+          sla_targets: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string | null
+          dest_city?: string | null
+          dest_country: string
+          id?: string
+          mode?: string | null
+          origin_city?: string | null
+          origin_country: string
+          service_type?: string | null
+          sla_targets?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string | null
+          dest_city?: string | null
+          dest_country?: string
+          id?: string
+          mode?: string | null
+          origin_city?: string | null
+          origin_country?: string
+          service_type?: string | null
+          sla_targets?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_lanes_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agentes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_reciprocity: {
+        Row: {
+          agent_id: string
+          created_at: string | null
+          id: string
+          period: string
+          received_services: number | null
+          reciprocity_ratio: number | null
+          sent_services: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string | null
+          id?: string
+          period: string
+          received_services?: number | null
+          reciprocity_ratio?: number | null
+          sent_services?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string | null
+          id?: string
+          period?: string
+          received_services?: number | null
+          reciprocity_ratio?: number | null
+          sent_services?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_reciprocity_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agentes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_statements: {
+        Row: {
+          agent_id: string
+          created_at: string | null
+          file_url: string | null
+          id: string
+          period_end: string
+          period_start: string
+          sent_at: string | null
+          sent_to: string[] | null
+          status: string | null
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string | null
+          file_url?: string | null
+          id?: string
+          period_end: string
+          period_start: string
+          sent_at?: string | null
+          sent_to?: string[] | null
+          status?: string | null
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string | null
+          file_url?: string | null
+          id?: string
+          period_end?: string
+          period_start?: string
+          sent_at?: string | null
+          sent_to?: string[] | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_statements_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agentes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_stats: {
+        Row: {
+          agent_id: string
+          bookings: number | null
+          claims_per_100: number | null
+          created_at: string | null
+          doc_ok_pct: number | null
+          gross_margin: number | null
+          id: string
+          m3_total: number | null
+          nps_avg: number | null
+          on_time_pct: number | null
+          period: string
+          received_services: number | null
+          revenue: number | null
+          sent_services: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          agent_id: string
+          bookings?: number | null
+          claims_per_100?: number | null
+          created_at?: string | null
+          doc_ok_pct?: number | null
+          gross_margin?: number | null
+          id?: string
+          m3_total?: number | null
+          nps_avg?: number | null
+          on_time_pct?: number | null
+          period: string
+          received_services?: number | null
+          revenue?: number | null
+          sent_services?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          agent_id?: string
+          bookings?: number | null
+          claims_per_100?: number | null
+          created_at?: string | null
+          doc_ok_pct?: number | null
+          gross_margin?: number | null
+          id?: string
+          m3_total?: number | null
+          nps_avg?: number | null
+          on_time_pct?: number | null
+          period?: string
+          received_services?: number | null
+          revenue?: number | null
+          sent_services?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_stats_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agentes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agentes: {
         Row: {
           activo: boolean | null
+          assignment_rules: Json | null
           certificaciones: string[] | null
           ciudad: string
           cobertura: string[] | null
@@ -24,20 +335,28 @@ export type Database = {
           contacto_nombre: string | null
           contacto_telefono: string | null
           created_at: string
+          doc_preferences: Json | null
           id: string
+          internal_notes: string | null
+          lane_strengths: Json | null
           moneda: string | null
           mudanzas_completadas: number | null
+          network: string | null
           nombre: string
           pais: string
+          preferred_currency: string | null
           rating: number | null
           servicios: string[] | null
           sla_dias: number | null
+          status: string | null
           tasa_cumplimiento: number | null
+          time_zone: string | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
           activo?: boolean | null
+          assignment_rules?: Json | null
           certificaciones?: string[] | null
           ciudad: string
           cobertura?: string[] | null
@@ -45,20 +364,28 @@ export type Database = {
           contacto_nombre?: string | null
           contacto_telefono?: string | null
           created_at?: string
+          doc_preferences?: Json | null
           id?: string
+          internal_notes?: string | null
+          lane_strengths?: Json | null
           moneda?: string | null
           mudanzas_completadas?: number | null
+          network?: string | null
           nombre: string
           pais: string
+          preferred_currency?: string | null
           rating?: number | null
           servicios?: string[] | null
           sla_dias?: number | null
+          status?: string | null
           tasa_cumplimiento?: number | null
+          time_zone?: string | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
           activo?: boolean | null
+          assignment_rules?: Json | null
           certificaciones?: string[] | null
           ciudad?: string
           cobertura?: string[] | null
@@ -66,15 +393,22 @@ export type Database = {
           contacto_nombre?: string | null
           contacto_telefono?: string | null
           created_at?: string
+          doc_preferences?: Json | null
           id?: string
+          internal_notes?: string | null
+          lane_strengths?: Json | null
           moneda?: string | null
           mudanzas_completadas?: number | null
+          network?: string | null
           nombre?: string
           pais?: string
+          preferred_currency?: string | null
           rating?: number | null
           servicios?: string[] | null
           sla_dias?: number | null
+          status?: string | null
           tasa_cumplimiento?: number | null
+          time_zone?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -559,6 +893,63 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      shipment_moves: {
+        Row: {
+          agent_id: string
+          claims_count: number | null
+          cost_alloc: number | null
+          created_at: string | null
+          doc_ok: boolean | null
+          id: string
+          mudanza_id: string
+          on_time_hit: boolean | null
+          revenue_alloc: number | null
+          role: string
+          updated_at: string | null
+        }
+        Insert: {
+          agent_id: string
+          claims_count?: number | null
+          cost_alloc?: number | null
+          created_at?: string | null
+          doc_ok?: boolean | null
+          id?: string
+          mudanza_id: string
+          on_time_hit?: boolean | null
+          revenue_alloc?: number | null
+          role: string
+          updated_at?: string | null
+        }
+        Update: {
+          agent_id?: string
+          claims_count?: number | null
+          cost_alloc?: number | null
+          created_at?: string | null
+          doc_ok?: boolean | null
+          id?: string
+          mudanza_id?: string
+          on_time_hit?: boolean | null
+          revenue_alloc?: number | null
+          role?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipment_moves_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agentes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipment_moves_mudanza_id_fkey"
+            columns: ["mudanza_id"]
+            isOneToOne: false
+            referencedRelation: "mudanzas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
