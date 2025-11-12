@@ -1,32 +1,93 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Star, TrendingUp, MapPin, Mail, Phone } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import {
+  Plus,
+  Users,
+  Package,
+  TrendingUp,
+  DollarSign,
+  AlertCircle,
+  ThumbsUp,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import { useAgentes } from "@/hooks/useAgentes";
+import { AgentKPICard } from "@/components/agentes/AgentKPICard";
+import { AgentCard } from "@/components/agentes/AgentCard";
+import { AgentFilters } from "@/components/agentes/AgentFilters";
 
 export default function Agentes() {
-  const { data: agentes, isLoading } = useQuery({
-    queryKey: ["agentes"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("agentes")
-        .select("*")
-        .order("rating", { ascending: false });
-
-      if (error) throw error;
-      return data;
-    },
+  const [filters, setFilters] = useState({
+    network: [] as string[],
+    pais: "",
+    ciudad: "",
+    status: "all",
+    search: "",
   });
+
+  const { data: agentes, isLoading } = useAgentes({
+    network: filters.network.length > 0 ? filters.network : undefined,
+    pais: filters.pais || undefined,
+    ciudad: filters.ciudad || undefined,
+    status: filters.status !== "all" ? filters.status : undefined,
+  });
+
+  // Filter by search
+  const filteredAgentes = agentes?.filter((agent) =>
+    filters.search
+      ? agent.nombre.toLowerCase().includes(filters.search.toLowerCase())
+      : true
+  );
+
+  // Calculate global KPIs
+  const globalKPIs = agentes?.reduce(
+    (acc, agent) => ({
+      activeAgents:
+        acc.activeAgents + (agent.status === "active" ? 1 : 0),
+      totalBookings: acc.totalBookings + (agent.stats?.bookings || 0),
+      totalM3: acc.totalM3 + (agent.stats?.m3_total || 0),
+      totalMargin: acc.totalMargin + (agent.stats?.gross_margin || 0),
+      avgOnTime:
+        (acc.avgOnTime * acc.count + (agent.stats?.on_time_pct || 0)) /
+        (acc.count + 1),
+      avgNPS:
+        (acc.avgNPS * acc.count + (agent.stats?.nps_avg || 0)) /
+        (acc.count + 1),
+      count: acc.count + 1,
+    }),
+    {
+      activeAgents: 0,
+      totalBookings: 0,
+      totalM3: 0,
+      totalMargin: 0,
+      avgOnTime: 0,
+      avgNPS: 0,
+      count: 0,
+    }
+  ) || {
+    activeAgents: 0,
+    totalBookings: 0,
+    totalM3: 0,
+    totalMargin: 0,
+    avgOnTime: 0,
+    avgNPS: 0,
+    count: 0,
+  };
 
   if (isLoading) {
     return (
       <DashboardLayout>
         <div className="container-dashboard space-y-6">
           <Skeleton className="h-20 w-full" />
-          {[1, 2, 3].map(i => <Skeleton key={i} className="h-48" />)}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="h-32" />
+            ))}
+          </div>
+          <Skeleton className="h-32 w-full" />
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-48" />
+          ))}
         </div>
       </DashboardLayout>
     );
@@ -35,121 +96,86 @@ export default function Agentes() {
   return (
     <DashboardLayout>
       <div className="container-dashboard space-y-6">
+        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Agentes Internacionales</h1>
-            <p className="text-muted-foreground">Red global de partners certificados</p>
+            <p className="text-muted-foreground">
+              Red global de partners certificados
+            </p>
           </div>
-          <Button size="lg" className="bg-accent hover:bg-accent-hover">
+          <Button size="lg">
             <Plus className="w-4 h-4 mr-2" />
             Nuevo Agente
           </Button>
         </div>
 
-        <div className="grid gap-4">
-          {agentes?.map((agente) => (
-            <Card key={agente.id} className="card-hover">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-4 flex-1">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <MapPin className="w-6 h-6 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-semibold">{agente.nombre}</h3>
-                        <p className="text-muted-foreground">{agente.ciudad}, {agente.pais}</p>
-                      </div>
-                    </div>
+        {/* Global KPIs */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <AgentKPICard
+            title="Agentes Activos"
+            value={globalKPIs.activeAgents}
+            icon={Users}
+          />
+          <AgentKPICard
+            title="Mudanzas con Agentes"
+            value={globalKPIs.totalBookings}
+            icon={Package}
+          />
+          <AgentKPICard
+            title="Volumen Total (m³)"
+            value={globalKPIs.totalM3.toFixed(1)}
+            icon={TrendingUp}
+          />
+          <AgentKPICard
+            title="Margen Total"
+            value={`$${globalKPIs.totalMargin.toLocaleString()}`}
+            icon={DollarSign}
+          />
+        </div>
 
-                    <div className="grid md:grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground mb-1">Contacto</p>
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <Mail className="w-3 h-3" />
-                            <span className="text-xs">{agente.contacto_email || 'N/A'}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Phone className="w-3 h-3" />
-                            <span className="text-xs">{agente.contacto_telefono || 'N/A'}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground mb-1">Cobertura</p>
-                        <div className="flex flex-wrap gap-1">
-                          {agente.cobertura?.slice(0, 3).map((pais, i) => (
-                            <Badge key={i} variant="outline" className="text-xs">
-                              {pais}
-                            </Badge>
-                          ))}
-                          {(agente.cobertura?.length || 0) > 3 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{(agente.cobertura?.length || 0) - 3}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground mb-1">Certificaciones</p>
-                        <div className="flex flex-wrap gap-1">
-                          {agente.certificaciones?.map((cert, i) => (
-                            <Badge key={i} className="text-xs bg-success/10 text-success border-success/20">
-                              {cert}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
+        {/* Secondary KPIs */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <AgentKPICard
+            title="On-time % Global"
+            value={`${globalKPIs.avgOnTime.toFixed(1)}%`}
+            icon={AlertCircle}
+          />
+          <AgentKPICard
+            title="NPS Promedio"
+            value={globalKPIs.avgNPS.toFixed(1)}
+            icon={ThumbsUp}
+          />
+          <AgentKPICard
+            title="Total Agentes"
+            value={agentes?.length || 0}
+            icon={Users}
+          />
+        </div>
 
-                    <div className="flex items-center gap-6 text-sm">
-                      <div className="flex items-center gap-2">
-                        <Star className="w-4 h-4 text-warning fill-warning" />
-                        <span className="font-medium">{agente.rating || 0}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Mudanzas:</span>{" "}
-                        <span className="font-medium">{agente.mudanzas_completadas || 0}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Cumplimiento:</span>{" "}
-                        <span className="font-medium text-success">{agente.tasa_cumplimiento || 0}%</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">SLA:</span>{" "}
-                        <span className="font-medium">{agente.sla_dias || 0} días</span>
-                      </div>
-                    </div>
-                  </div>
+        {/* Filters */}
+        <AgentFilters filters={filters} onChange={setFilters} />
 
-                  <Badge 
-                    className={agente.activo 
-                      ? "bg-success/10 text-success border-success/20" 
-                      : "bg-muted text-muted-foreground"
-                    }
-                  >
-                    {agente.activo ? 'Activo' : 'Inactivo'}
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-
-          {(!agentes || agentes.length === 0) && (
-            <Card>
-              <CardContent className="p-12 text-center">
-                <MapPin className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold mb-2">No hay agentes registrados</h3>
-                <p className="text-muted-foreground mb-4">
-                  Comienza agregando agentes internacionales a tu red
-                </p>
-                <Button className="bg-accent hover:bg-accent-hover">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Agregar Primer Agente
-                </Button>
-              </CardContent>
-            </Card>
+        {/* Agent Cards */}
+        <div className="space-y-4">
+          {filteredAgentes && filteredAgentes.length > 0 ? (
+            filteredAgentes.map((agente) => (
+              <AgentCard key={agente.id} agent={agente} />
+            ))
+          ) : (
+            <div className="text-center py-12">
+              <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-lg font-semibold mb-2">
+                No se encontraron agentes
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                Ajusta los filtros o agrega nuevos agentes a tu red
+              </p>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                Agregar Agente
+              </Button>
+            </div>
           )}
         </div>
       </div>
