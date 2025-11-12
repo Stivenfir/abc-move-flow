@@ -9,6 +9,7 @@ import { TimelineHito } from "@/components/mudanzas/TimelineHito";
 import { SLAAlerts } from "@/components/mudanzas/SLAAlerts";
 import { MudanzaStats } from "@/components/mudanzas/MudanzaStats";
 import { PackingModule } from "@/components/mudanzas/packing/PackingModule";
+import { DocumentosModule } from "@/components/mudanzas/documentos/DocumentosModule";
 import { 
   ArrowLeft, User, MapPin, Package, 
   FileText, MessageSquare 
@@ -154,6 +155,12 @@ export default function MudanzaDetalle() {
             clienteNombre={mudanza.cliente.nombre}
           />
         )}
+
+        {/* Módulo de Documentos */}
+        <DocumentosModule 
+          mudanzaId={mudanza.id}
+          mudanzaData={mudanza}
+        />
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Información del Cliente */}
