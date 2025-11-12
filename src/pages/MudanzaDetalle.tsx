@@ -5,11 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { useParams, useNavigate } from "react-router-dom";
 import { useMudanza } from "@/hooks/useMudanzas";
 import { EstadoBadge } from "@/components/mudanzas/EstadoBadge";
+import { TimelineHito } from "@/components/mudanzas/TimelineHito";
+import { SLAAlerts } from "@/components/mudanzas/SLAAlerts";
+import { MudanzaStats } from "@/components/mudanzas/MudanzaStats";
 import { 
-  ArrowLeft, User, MapPin, Package, Calendar, DollarSign, 
-  FileText, MessageSquare, CheckCircle2 
+  ArrowLeft, User, MapPin, Package, 
+  FileText, MessageSquare 
 } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const estadosTimeline = [
@@ -54,6 +56,21 @@ export default function MudanzaDetalle() {
   const getEstadoIndex = (estado: string) => estadosTimeline.findIndex(e => e.estado === estado);
   const estadoActualIndex = getEstadoIndex(mudanza.estado);
 
+  // Mapear hitos existentes o crear estructura básica
+  const hitos = mudanza.hitos && mudanza.hitos.length > 0 
+    ? mudanza.hitos 
+    : estadosTimeline.map((et, index) => ({
+        id: `temp-${index}`,
+        estado: et.estado,
+        fecha_plan: undefined,
+        fecha_real: undefined,
+        completado: index < estadoActualIndex,
+        sla_dias: 7, // Default SLA
+        responsable: undefined,
+        comentarios: undefined,
+        documentos: []
+      }));
+
   return (
     <DashboardLayout>
       <div className="container-dashboard space-y-6">
@@ -65,6 +82,9 @@ export default function MudanzaDetalle() {
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold">{mudanza.numero}</h1>
               <EstadoBadge estado={mudanza.estado} />
+              <Badge variant="outline" className="capitalize">
+                {mudanza.prioridad}
+              </Badge>
             </div>
             <p className="text-muted-foreground">{mudanza.cliente.nombre}</p>
           </div>
@@ -73,63 +93,51 @@ export default function MudanzaDetalle() {
           </Button>
         </div>
 
-        {/* Progress Bar */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="font-medium">Progreso de la mudanza</span>
-                <span className="text-muted-foreground">{mudanza.progreso}%</span>
-              </div>
-              <Progress value={mudanza.progreso} className="h-3" />
-            </div>
-          </CardContent>
-        </Card>
+        {/* KPI Stats */}
+        <MudanzaStats 
+          hitos={hitos}
+          fechaCreacion={mudanza.fecha_creacion}
+          fechaEstimada={mudanza.fecha_estimada}
+        />
 
-        {/* Timeline */}
+        {/* Alertas SLA */}
+        <SLAAlerts hitos={hitos} estadoActual={mudanza.estado} />
+
+        {/* Timeline Mejorado */}
         <Card>
           <CardHeader>
-            <CardTitle>Línea de Tiempo</CardTitle>
+            <CardTitle>Línea de Tiempo Operativa</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="relative">
               <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border" />
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {estadosTimeline.map((item, index) => {
                   const completado = index < estadoActualIndex;
                   const actual = index === estadoActualIndex;
+                  const pendiente = index > estadoActualIndex;
+                  
+                  const hitoData = hitos.find(h => h.estado === item.estado) || {
+                    id: `temp-${index}`,
+                    estado: item.estado,
+                    fecha_plan: undefined,
+                    fecha_real: undefined,
+                    completado,
+                    sla_dias: 7,
+                    responsable: undefined,
+                    comentarios: undefined,
+                    documentos: []
+                  };
                   
                   return (
-                    <div key={item.estado} className="relative flex items-start gap-4 pl-10">
-                      <div className={`absolute left-0 w-8 h-8 rounded-full border-2 flex items-center justify-center z-10 ${
-                        completado 
-                          ? 'bg-success border-success' 
-                          : actual
-                          ? 'bg-primary border-primary animate-pulse'
-                          : 'bg-background border-border'
-                      }`}>
-                        {completado && <CheckCircle2 className="w-4 h-4 text-white" />}
-                      </div>
-                      <div className="flex-1 pb-4">
-                        <div className="flex items-center justify-between">
-                          <p className={`font-medium ${
-                            completado || actual
-                              ? 'text-foreground'
-                              : 'text-muted-foreground'
-                          }`}>
-                            {item.label}
-                          </p>
-                          {completado && (
-                            <span className="text-xs text-muted-foreground">
-                              Completado
-                            </span>
-                          )}
-                          {actual && (
-                            <Badge className="bg-primary">En Proceso</Badge>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+                    <TimelineHito
+                      key={item.estado}
+                      hito={hitoData}
+                      estadoLabel={item.label}
+                      isActual={actual}
+                      isCompletado={completado}
+                      isPendiente={pendiente}
+                    />
                   );
                 })}
               </div>
