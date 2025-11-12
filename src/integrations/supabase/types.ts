@@ -422,6 +422,59 @@ export type Database = {
           },
         ]
       }
+      alertas: {
+        Row: {
+          asignado_a: string | null
+          created_at: string
+          datos: Json | null
+          id: string
+          leida: boolean | null
+          mensaje: string
+          mudanza_id: string
+          resuelta: boolean | null
+          resuelta_at: string | null
+          severidad: string
+          tipo: string
+          titulo: string
+        }
+        Insert: {
+          asignado_a?: string | null
+          created_at?: string
+          datos?: Json | null
+          id?: string
+          leida?: boolean | null
+          mensaje: string
+          mudanza_id: string
+          resuelta?: boolean | null
+          resuelta_at?: string | null
+          severidad: string
+          tipo: string
+          titulo: string
+        }
+        Update: {
+          asignado_a?: string | null
+          created_at?: string
+          datos?: Json | null
+          id?: string
+          leida?: boolean | null
+          mensaje?: string
+          mudanza_id?: string
+          resuelta?: boolean | null
+          resuelta_at?: string | null
+          severidad?: string
+          tipo?: string
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alertas_mudanza_id_fkey"
+            columns: ["mudanza_id"]
+            isOneToOne: false
+            referencedRelation: "mudanzas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clientes: {
         Row: {
           ciudad: string | null
@@ -758,6 +811,53 @@ export type Database = {
           },
         ]
       }
+      mudanza_eventos: {
+        Row: {
+          categoria: string
+          created_at: string
+          datos_nuevos: Json | null
+          datos_previos: Json | null
+          descripcion: string
+          id: string
+          mudanza_id: string
+          tipo: string
+          usuario_id: string | null
+          usuario_nombre: string | null
+        }
+        Insert: {
+          categoria: string
+          created_at?: string
+          datos_nuevos?: Json | null
+          datos_previos?: Json | null
+          descripcion: string
+          id?: string
+          mudanza_id: string
+          tipo: string
+          usuario_id?: string | null
+          usuario_nombre?: string | null
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          datos_nuevos?: Json | null
+          datos_previos?: Json | null
+          descripcion?: string
+          id?: string
+          mudanza_id?: string
+          tipo?: string
+          usuario_id?: string | null
+          usuario_nombre?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mudanza_eventos_mudanza_id_fkey"
+            columns: ["mudanza_id"]
+            isOneToOne: false
+            referencedRelation: "mudanzas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mudanzas: {
         Row: {
           agente_id: string | null
@@ -985,6 +1085,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generar_alertas_sla: { Args: never; Returns: undefined }
       generate_mudanza_numero: { Args: never; Returns: string }
       has_role: {
         Args: {

@@ -10,6 +10,7 @@ import { SLAAlerts } from "@/components/mudanzas/SLAAlerts";
 import { MudanzaStats } from "@/components/mudanzas/MudanzaStats";
 import { PackingModule } from "@/components/mudanzas/packing/PackingModule";
 import { DocumentosModule } from "@/components/mudanzas/documentos/DocumentosModule";
+import { TrazabilidadModule } from "@/components/mudanzas/trazabilidad/TrazabilidadModule";
 import { 
   ArrowLeft, User, MapPin, Package, 
   FileText, MessageSquare 
@@ -161,6 +162,9 @@ export default function MudanzaDetalle() {
           mudanzaId={mudanza.id}
           mudanzaData={mudanza}
         />
+
+        {/* Módulo de Trazabilidad */}
+        <TrazabilidadModule mudanzaId={mudanza.id} />
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Información del Cliente */}

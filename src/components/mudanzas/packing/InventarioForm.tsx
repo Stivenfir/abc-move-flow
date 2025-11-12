@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useRegistrarEvento } from "@/hooks/useRegistrarEvento";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +36,7 @@ interface InventarioFormProps {
 export function InventarioForm({ mudanzaId }: InventarioFormProps) {
   const [fotos, setFotos] = useState<File[]>([]);
   const queryClient = useQueryClient();
+  const registrarEvento = useRegistrarEvento();
 
   const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm<InventarioFormData>({
     resolver: zodResolver(inventarioSchema),
@@ -78,6 +80,15 @@ export function InventarioForm({ mudanzaId }: InventarioFormProps) {
     onSuccess: () => {
       toast.success("Item agregado al inventario");
       queryClient.invalidateQueries({ queryKey: ["inventario", mudanzaId] });
+      
+      // Registrar evento
+      registrarEvento.mutate({
+        mudanzaId,
+        tipo: "inventario_agregado",
+        categoria: "usuario",
+        descripcion: "Item agregado al inventario",
+      });
+      
       reset();
       setFotos([]);
     },

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useRegistrarEvento } from "@/hooks/useRegistrarEvento";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -40,6 +41,7 @@ export function DocumentGenerator({ mudanzaId, mudanzaData }: DocumentGeneratorP
   const [sendEmail, setSendEmail] = useState(false);
   const [recipientEmail, setRecipientEmail] = useState(mudanzaData?.cliente?.email || "");
   const queryClient = useQueryClient();
+  const registrarEvento = useRegistrarEvento();
 
   const generateDocument = useMutation({
     mutationFn: async (type: string) => {
@@ -82,6 +84,16 @@ export function DocumentGenerator({ mudanzaId, mudanzaData }: DocumentGeneratorP
           : "Documento generado exitosamente"
       );
       queryClient.invalidateQueries({ queryKey: ["documentos", mudanzaId] });
+      
+      // Registrar evento
+      registrarEvento.mutate({
+        mudanzaId,
+        tipo: "documento_generado",
+        categoria: "usuario",
+        descripcion: `Documento generado: ${documentTypes.find(d => d.value === selectedType)?.label}`,
+        datos_nuevos: { tipo: selectedType, enviado: sendEmail },
+      });
+      
       setSelectedType("");
       setSendEmail(false);
     },
