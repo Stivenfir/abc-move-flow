@@ -3,35 +3,56 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useParams, useNavigate } from "react-router-dom";
-import { mockMudanzas } from "@/lib/mockData";
+import { useMudanza } from "@/hooks/useMudanzas";
 import { EstadoBadge } from "@/components/mudanzas/EstadoBadge";
 import { 
   ArrowLeft, User, MapPin, Package, Calendar, DollarSign, 
   FileText, MessageSquare, CheckCircle2 
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const estadosTimeline = [
-  { estado: "inspeccion", label: "Inspección", completado: true },
-  { estado: "cotizacion", label: "Cotización", completado: true },
-  { estado: "booking", label: "Booking", completado: true },
-  { estado: "empaque", label: "Empaque", completado: true },
-  { estado: "bodega", label: "Bodega", completado: true },
-  { estado: "despacho", label: "Despacho", completado: true },
-  { estado: "transito", label: "Tránsito", completado: true },
-  { estado: "aduana", label: "Aduana", completado: false },
-  { estado: "entrega", label: "Entrega", completado: false },
-  { estado: "cerrado", label: "Cerrado", completado: false },
+  { estado: "inspeccion", label: "Inspección" },
+  { estado: "cotizacion", label: "Cotización" },
+  { estado: "booking", label: "Booking" },
+  { estado: "empaque", label: "Empaque" },
+  { estado: "bodega", label: "Bodega" },
+  { estado: "despacho", label: "Despacho" },
+  { estado: "transito", label: "Tránsito" },
+  { estado: "aduana", label: "Aduana" },
+  { estado: "entrega", label: "Entrega" },
+  { estado: "cerrado", label: "Cerrado" },
 ];
 
 export default function MudanzaDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const mudanza = mockMudanzas.find(m => m.id === id);
+  const { data: mudanza, isLoading } = useMudanza(id!);
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="container-dashboard space-y-6">
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-96 w-full" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   if (!mudanza) {
-    return <div>Mudanza no encontrada</div>;
+    return (
+      <DashboardLayout>
+        <div className="container-dashboard">
+          <p>Mudanza no encontrada</p>
+        </div>
+      </DashboardLayout>
+    );
   }
+
+  const getEstadoIndex = (estado: string) => estadosTimeline.findIndex(e => e.estado === estado);
+  const estadoActualIndex = getEstadoIndex(mudanza.estado);
 
   return (
     <DashboardLayout>
@@ -74,38 +95,43 @@ export default function MudanzaDetalle() {
             <div className="relative">
               <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border" />
               <div className="space-y-4">
-                {estadosTimeline.map((item, index) => (
-                  <div key={item.estado} className="relative flex items-start gap-4 pl-10">
-                    <div className={`absolute left-0 w-8 h-8 rounded-full border-2 flex items-center justify-center z-10 ${
-                      item.completado 
-                        ? 'bg-success border-success' 
-                        : mudanza.estado === item.estado
-                        ? 'bg-primary border-primary animate-pulse'
-                        : 'bg-background border-border'
-                    }`}>
-                      {item.completado && <CheckCircle2 className="w-4 h-4 text-white" />}
-                    </div>
-                    <div className="flex-1 pb-4">
-                      <div className="flex items-center justify-between">
-                        <p className={`font-medium ${
-                          item.completado || mudanza.estado === item.estado
-                            ? 'text-foreground'
-                            : 'text-muted-foreground'
-                        }`}>
-                          {item.label}
-                        </p>
-                        {item.completado && (
-                          <span className="text-xs text-muted-foreground">
-                            Completado
-                          </span>
-                        )}
-                        {mudanza.estado === item.estado && (
-                          <Badge className="bg-primary">En Proceso</Badge>
-                        )}
+                {estadosTimeline.map((item, index) => {
+                  const completado = index < estadoActualIndex;
+                  const actual = index === estadoActualIndex;
+                  
+                  return (
+                    <div key={item.estado} className="relative flex items-start gap-4 pl-10">
+                      <div className={`absolute left-0 w-8 h-8 rounded-full border-2 flex items-center justify-center z-10 ${
+                        completado 
+                          ? 'bg-success border-success' 
+                          : actual
+                          ? 'bg-primary border-primary animate-pulse'
+                          : 'bg-background border-border'
+                      }`}>
+                        {completado && <CheckCircle2 className="w-4 h-4 text-white" />}
+                      </div>
+                      <div className="flex-1 pb-4">
+                        <div className="flex items-center justify-between">
+                          <p className={`font-medium ${
+                            completado || actual
+                              ? 'text-foreground'
+                              : 'text-muted-foreground'
+                          }`}>
+                            {item.label}
+                          </p>
+                          {completado && (
+                            <span className="text-xs text-muted-foreground">
+                              Completado
+                            </span>
+                          )}
+                          {actual && (
+                            <Badge className="bg-primary">En Proceso</Badge>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </CardContent>
@@ -123,19 +149,19 @@ export default function MudanzaDetalle() {
             <CardContent className="space-y-3">
               <div>
                 <p className="text-sm text-muted-foreground">Nombre</p>
-                <p className="font-medium">{mudanza.cliente.nombre}</p>
+                <p className="font-medium">{mudanza.cliente?.nombre}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Email</p>
-                <p className="font-medium">{mudanza.cliente.email}</p>
+                <p className="font-medium">{mudanza.cliente?.email}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Teléfono</p>
-                <p className="font-medium">{mudanza.cliente.telefono}</p>
+                <p className="font-medium">{mudanza.cliente?.telefono || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Tipo de Cliente</p>
-                <Badge className="capitalize">{mudanza.cliente.tipo}</Badge>
+                <Badge className="capitalize">{mudanza.cliente?.tipo}</Badge>
               </div>
             </CardContent>
           </Card>
@@ -151,7 +177,7 @@ export default function MudanzaDetalle() {
             <CardContent className="space-y-3">
               <div>
                 <p className="text-sm text-muted-foreground">Tipo</p>
-                <p className="font-medium capitalize">{mudanza.tipo}</p>
+                <p className="font-medium capitalize">{mudanza.tipo?.replace('_', ' ')}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Modo de Transporte</p>
@@ -159,11 +185,11 @@ export default function MudanzaDetalle() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Volumen Estimado</p>
-                <p className="font-medium">{mudanza.volumenEstimado} m³</p>
+                <p className="font-medium">{mudanza.volumen_estimado || 'N/A'} m³</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Peso Estimado</p>
-                <p className="font-medium">{mudanza.pesoEstimado} kg</p>
+                <p className="font-medium">{mudanza.peso_estimado || 'N/A'} kg</p>
               </div>
             </CardContent>
           </Card>
@@ -177,8 +203,8 @@ export default function MudanzaDetalle() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <p className="font-medium">{mudanza.origen.ciudad}, {mudanza.origen.pais}</p>
-              <p className="text-sm text-muted-foreground">{mudanza.origen.direccion}</p>
+              <p className="font-medium">{mudanza.origen_ciudad}, {mudanza.origen_pais}</p>
+              <p className="text-sm text-muted-foreground">{mudanza.origen_direccion || 'N/A'}</p>
             </CardContent>
           </Card>
 
@@ -191,8 +217,8 @@ export default function MudanzaDetalle() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <p className="font-medium">{mudanza.destino.ciudad}, {mudanza.destino.pais}</p>
-              <p className="text-sm text-muted-foreground">{mudanza.destino.direccion}</p>
+              <p className="font-medium">{mudanza.destino_ciudad}, {mudanza.destino_pais}</p>
+              <p className="text-sm text-muted-foreground">{mudanza.destino_direccion || 'N/A'}</p>
             </CardContent>
           </Card>
         </div>

@@ -1,4 +1,8 @@
 import { Home, Package, Users, Globe, FileText, Settings, BarChart3, Warehouse } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -31,6 +35,22 @@ const configItems = [
 ];
 
 export function DashboardSidebar() {
+  const { user, userRoles, signOut } = useAuth();
+
+  const { data: profile } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
   return (
     <Sidebar>
       <SidebarHeader className="border-b border-sidebar-border">
@@ -103,12 +123,24 @@ export function DashboardSidebar() {
       <SidebarFooter className="border-t border-sidebar-border p-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-sidebar-primary flex items-center justify-center text-xs font-medium text-sidebar-primary-foreground">
-            JD
+            {profile?.nombre_completo?.substring(0, 2).toUpperCase() || "U"}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-sidebar-foreground truncate">Juan Díaz</p>
-            <p className="text-xs text-sidebar-foreground/60 truncate">Coordinador</p>
+            <p className="text-sm font-medium text-sidebar-foreground truncate">
+              {profile?.nombre_completo || "Usuario"}
+            </p>
+            <p className="text-xs text-sidebar-foreground/60 truncate">
+              {userRoles.length > 0 ? userRoles.join(", ") : "Sin rol"}
+            </p>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={signOut}
+            className="text-sidebar-foreground hover:bg-sidebar-accent"
+          >
+            Salir
+          </Button>
         </div>
       </SidebarFooter>
     </Sidebar>

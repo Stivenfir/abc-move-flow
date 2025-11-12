@@ -2,18 +2,33 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { Package, TrendingUp, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockMudanzas } from "@/lib/mockData";
 import { EstadoBadge } from "@/components/mudanzas/EstadoBadge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useMudanzas } from "@/hooks/useMudanzas";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { data: mudanzas, isLoading } = useMudanzas();
   
-  const mudanzasActivas = mockMudanzas.filter(m => m.estado !== "cerrado").length;
-  const mudanzasEnTransito = mockMudanzas.filter(m => m.estado === "transito").length;
-  const mudanzasUrgentes = mockMudanzas.filter(m => m.prioridad === "urgente").length;
+  const mudanzasActivas = mudanzas?.filter(m => m.estado !== "cerrado").length || 0;
+  const mudanzasEnTransito = mudanzas?.filter(m => m.estado === "transito").length || 0;
+  const mudanzasUrgentes = mudanzas?.filter(m => m.prioridad === "urgente").length || 0;
   
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="container-dashboard space-y-6">
+          <Skeleton className="h-20 w-full" />
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32" />)}
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="container-dashboard space-y-6">
@@ -63,7 +78,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mockMudanzas.slice(0, 3).map((mudanza) => (
+                {mudanzas?.slice(0, 3).map((mudanza) => (
                   <div
                     key={mudanza.id}
                     className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors cursor-pointer"
@@ -71,15 +86,15 @@ export default function Dashboard() {
                   >
                     <div className="space-y-1">
                       <p className="font-medium">{mudanza.numero}</p>
-                      <p className="text-sm text-muted-foreground">{mudanza.cliente.nombre}</p>
+                      <p className="text-sm text-muted-foreground">{mudanza.cliente?.nombre}</p>
                       <p className="text-xs text-muted-foreground">
-                        {mudanza.origen.ciudad} → {mudanza.destino.ciudad}
+                        {mudanza.origen_ciudad} → {mudanza.destino_ciudad}
                       </p>
                     </div>
                     <div className="text-right space-y-2">
                       <EstadoBadge estado={mudanza.estado} />
                       <p className="text-xs text-muted-foreground">
-                        Est: {new Date(mudanza.fechaEstimada).toLocaleDateString('es-CO')}
+                        Est: {mudanza.fecha_estimada ? new Date(mudanza.fecha_estimada).toLocaleDateString('es-CO') : 'N/A'}
                       </p>
                     </div>
                   </div>
@@ -101,21 +116,21 @@ export default function Dashboard() {
                   <AlertCircle className="w-5 h-5 text-warning mt-0.5" />
                   <div>
                     <p className="text-sm font-medium">Documento pendiente</p>
-                    <p className="text-xs text-muted-foreground">MUD-2025-002 requiere certificado de aduana</p>
+                    <p className="text-xs text-muted-foreground">Algunas mudanzas requieren documentación</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg bg-info/10 border border-info/20">
                   <Clock className="w-5 h-5 text-info mt-0.5" />
                   <div>
                     <p className="text-sm font-medium">Inspección programada</p>
-                    <p className="text-xs text-muted-foreground">Mañana 10:00 AM - Calle 100 #15-20</p>
+                    <p className="text-xs text-muted-foreground">Verifica el calendario de inspecciones</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg bg-success/10 border border-success/20">
                   <CheckCircle className="w-5 h-5 text-success mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium">Entrega exitosa</p>
-                    <p className="text-xs text-muted-foreground">MUD-2025-001 entregado al cliente</p>
+                    <p className="text-sm font-medium">Sistema operativo</p>
+                    <p className="text-xs text-muted-foreground">Todas las mudanzas están siendo rastreadas</p>
                   </div>
                 </div>
               </div>

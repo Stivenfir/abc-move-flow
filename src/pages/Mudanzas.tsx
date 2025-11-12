@@ -1,14 +1,16 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Filter } from "lucide-react";
-import { mockMudanzas } from "@/lib/mockData";
 import { EstadoBadge } from "@/components/mudanzas/EstadoBadge";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { useMudanzas } from "@/hooks/useMudanzas";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Mudanzas() {
   const navigate = useNavigate();
+  const { data: mudanzas, isLoading } = useMudanzas();
 
   const getPrioridadColor = (prioridad: string) => {
     switch (prioridad) {
@@ -18,6 +20,17 @@ export default function Mudanzas() {
       default: return "bg-muted text-muted-foreground";
     }
   };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="container-dashboard space-y-6">
+          <Skeleton className="h-20 w-full" />
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-48" />)}
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -40,7 +53,7 @@ export default function Mudanzas() {
         </div>
 
         <div className="grid gap-4">
-          {mockMudanzas.map((mudanza) => (
+          {mudanzas?.map((mudanza) => (
             <Card 
               key={mudanza.id} 
               className="card-hover cursor-pointer"
@@ -60,21 +73,21 @@ export default function Mudanzas() {
                     <div className="grid md:grid-cols-3 gap-4 text-sm">
                       <div>
                         <p className="text-muted-foreground">Cliente</p>
-                        <p className="font-medium">{mudanza.cliente.nombre}</p>
-                        <p className="text-xs text-muted-foreground">{mudanza.cliente.tipo}</p>
+                        <p className="font-medium">{mudanza.cliente?.nombre}</p>
+                        <p className="text-xs text-muted-foreground">{mudanza.cliente?.tipo}</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Origen → Destino</p>
                         <p className="font-medium">
-                          {mudanza.origen.ciudad}, {mudanza.origen.pais}
+                          {mudanza.origen_ciudad}, {mudanza.origen_pais}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          → {mudanza.destino.ciudad}, {mudanza.destino.pais}
+                          → {mudanza.destino_ciudad}, {mudanza.destino_pais}
                         </p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Tipo / Modo</p>
-                        <p className="font-medium capitalize">{mudanza.tipo}</p>
+                        <p className="font-medium capitalize">{mudanza.tipo?.replace('_', ' ')}</p>
                         <p className="text-xs text-muted-foreground capitalize">{mudanza.modo}</p>
                       </div>
                     </div>
@@ -82,16 +95,16 @@ export default function Mudanzas() {
                     <div className="flex items-center gap-6 text-sm">
                       <div>
                         <span className="text-muted-foreground">Volumen:</span>{" "}
-                        <span className="font-medium">{mudanza.volumenEstimado} m³</span>
+                        <span className="font-medium">{mudanza.volumen_estimado || 'N/A'} m³</span>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Peso:</span>{" "}
-                        <span className="font-medium">{mudanza.pesoEstimado} kg</span>
+                        <span className="font-medium">{mudanza.peso_estimado || 'N/A'} kg</span>
                       </div>
                       <div>
                         <span className="text-muted-foreground">Fecha estimada:</span>{" "}
                         <span className="font-medium">
-                          {new Date(mudanza.fechaEstimada).toLocaleDateString('es-CO')}
+                          {mudanza.fecha_estimada ? new Date(mudanza.fecha_estimada).toLocaleDateString('es-CO') : 'N/A'}
                         </span>
                       </div>
                     </div>
