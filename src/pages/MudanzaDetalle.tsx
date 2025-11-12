@@ -8,6 +8,7 @@ import { EstadoBadge } from "@/components/mudanzas/EstadoBadge";
 import { TimelineHito } from "@/components/mudanzas/TimelineHito";
 import { SLAAlerts } from "@/components/mudanzas/SLAAlerts";
 import { MudanzaStats } from "@/components/mudanzas/MudanzaStats";
+import { PackingModule } from "@/components/mudanzas/packing/PackingModule";
 import { 
   ArrowLeft, User, MapPin, Package, 
   FileText, MessageSquare 
@@ -144,6 +145,15 @@ export default function MudanzaDetalle() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Módulo de Packing */}
+        {(mudanza.estado === 'empaque' || mudanza.estado === 'bodega') && (
+          <PackingModule 
+            mudanzaId={mudanza.id}
+            mudanzaNumero={mudanza.numero}
+            clienteNombre={mudanza.cliente.nombre}
+          />
+        )}
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Información del Cliente */}
