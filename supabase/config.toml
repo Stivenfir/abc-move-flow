@@ -1,1 +1,7 @@
 project_id = "reqbjchkbibxbnpbwbla"
+
+[functions.sync-clientify]
+verify_jwt = false
+
+[functions.send-document]
+verify_jwt = false

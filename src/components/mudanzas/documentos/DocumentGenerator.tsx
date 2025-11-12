@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useRegistrarEvento } from "@/hooks/useRegistrarEvento";
+import { useSendDocument } from "@/hooks/useSendDocument";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -42,6 +43,7 @@ export function DocumentGenerator({ mudanzaId, mudanzaData }: DocumentGeneratorP
   const [recipientEmail, setRecipientEmail] = useState(mudanzaData?.cliente?.email || "");
   const queryClient = useQueryClient();
   const registrarEvento = useRegistrarEvento();
+  const sendDocumentEmail = useSendDocument();
 
   const generateDocument = useMutation({
     mutationFn: async (type: string) => {
@@ -71,8 +73,15 @@ export function DocumentGenerator({ mudanzaId, mudanzaData }: DocumentGeneratorP
 
       // Send email if requested
       if (sendEmail && recipientEmail) {
-        // TODO: Implement email sending via edge function
-        console.log("Sending email to:", recipientEmail);
+        const docName = documentTypes.find(d => d.value === type)?.label || "Documento";
+        sendDocumentEmail.mutate({
+          to: recipientEmail,
+          mudanzaNumero: mudanzaData.numero,
+          documentoTipo: docName,
+          pdfBase64: base64.split(',')[1], // Remove data:application/pdf;base64, prefix
+          clienteNombre: mudanzaData.cliente?.nombre,
+          agenteNombre: mudanzaData.agente?.nombre,
+        });
       }
 
       return data;
