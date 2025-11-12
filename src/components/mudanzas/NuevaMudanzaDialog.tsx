@@ -11,7 +11,7 @@ import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
+import { useClientifySync } from "@/hooks/useClientifySync";
 
 const formSchema = z.object({
   cliente_id: z.string().min(1, "Debe seleccionar un cliente"),
@@ -35,8 +35,8 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function NuevaMudanzaDialog() {
   const [open, setOpen] = useState(false);
-  const { user } = useAuth();
   const queryClient = useQueryClient();
+  const clientifySync = useClientifySync();
 
   const { data: clientes } = useQuery({
     queryKey: ["clientes"],
@@ -85,7 +85,7 @@ export function NuevaMudanzaDialog() {
           peso_estimado: values.peso_estimado,
           valor_declarado: values.valor_declarado,
           fecha_inspeccion: values.fecha_inspeccion,
-          coordinador_id: user?.id!,
+          coordinador_id: '00000000-0000-0000-0000-000000000000',
           estado: "inspeccion" as const,
         }])
         .select()

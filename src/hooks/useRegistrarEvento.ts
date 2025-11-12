@@ -16,22 +16,6 @@ export function useRegistrarEvento() {
 
   return useMutation({
     mutationFn: async (evento: EventoData) => {
-      // Get current user profile
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      let usuarioNombre = "Sistema";
-      if (user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("nombre_completo")
-          .eq("id", user.id)
-          .single();
-        
-        if (profile) {
-          usuarioNombre = profile.nombre_completo;
-        }
-      }
-
       const { data, error } = await supabase
         .from("mudanza_eventos")
         .insert({
@@ -41,8 +25,8 @@ export function useRegistrarEvento() {
           descripcion: evento.descripcion,
           datos_previos: evento.datos_previos,
           datos_nuevos: evento.datos_nuevos,
-          usuario_id: user?.id,
-          usuario_nombre: usuarioNombre,
+          usuario_id: null,
+          usuario_nombre: "Usuario Demo",
         })
         .select()
         .single();
