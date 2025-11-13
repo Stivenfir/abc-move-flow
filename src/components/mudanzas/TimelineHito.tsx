@@ -1,13 +1,20 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   CheckCircle2, Clock, AlertTriangle, Calendar, 
-  FileCheck, ChevronDown, ChevronUp 
+  FileCheck, ChevronDown, ChevronUp, Edit, Save, X
 } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { es } from "date-fns/locale";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { useParams } from "react-router-dom";
 
 interface TimelineHitoProps {
   hito: {
@@ -34,7 +41,111 @@ export function TimelineHito({
   isCompletado, 
   isPendiente 
 }: TimelineHitoProps) {
+  const { id: mudanzaId } = useParams();
+  const queryClient = useQueryClient();
   const [expanded, setExpanded] = useState(isActual);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({
+    fecha_plan: hito.fecha_plan || "",
+    responsable: hito.responsable || "",
+    comentarios: hito.comentarios || "",
+    sla_dias: hito.sla_dias || 7,
+  });
+
+  const completarHitoMutation = useMutation({
+    mutationFn: async () => {
+      const hitoId = hito.id?.startsWith('temp-') ? null : hito.id;
+      
+      if (!hitoId) {
+        // Crear nuevo hito
+        const { error } = await supabase
+          .from("hitos")
+          .insert([{
+            mudanza_id: mudanzaId,
+            estado: hito.estado as any,
+            fecha_plan: editData.fecha_plan || null,
+            fecha_real: new Date().toISOString(),
+            completado: true,
+            sla_dias: editData.sla_dias,
+            responsable: editData.responsable || null,
+            comentarios: editData.comentarios || null,
+          }]);
+        
+        if (error) throw error;
+      } else {
+        // Actualizar hito existente
+        const { error } = await supabase
+          .from("hitos")
+          .update({
+            fecha_real: new Date().toISOString(),
+            completado: true,
+          })
+          .eq("id", hitoId);
+        
+        if (error) throw error;
+      }
+      
+      // Registrar evento
+      await supabase.from("mudanza_eventos").insert({
+        mudanza_id: mudanzaId,
+        tipo: "hito_completado",
+        categoria: "usuario",
+        descripcion: `Hito "${estadoLabel}" marcado como completado`,
+        datos_nuevos: { estado: hito.estado, completado: true },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["mudanza", mudanzaId] });
+      toast.success("Hito completado exitosamente");
+    },
+    onError: () => {
+      toast.error("Error al completar el hito");
+    },
+  });
+
+  const guardarHitoMutation = useMutation({
+    mutationFn: async () => {
+      const hitoId = hito.id?.startsWith('temp-') ? null : hito.id;
+      
+      if (!hitoId) {
+        // Crear nuevo hito
+        const { error } = await supabase
+          .from("hitos")
+          .insert([{
+            mudanza_id: mudanzaId,
+            estado: hito.estado as any,
+            fecha_plan: editData.fecha_plan || null,
+            sla_dias: editData.sla_dias,
+            responsable: editData.responsable || null,
+            comentarios: editData.comentarios || null,
+            completado: false,
+          }]);
+        
+        if (error) throw error;
+      } else {
+        // Actualizar hito existente
+        const { error } = await supabase
+          .from("hitos")
+          .update({
+            fecha_plan: editData.fecha_plan || null,
+            sla_dias: editData.sla_dias,
+            responsable: editData.responsable || null,
+            comentarios: editData.comentarios || null,
+          })
+          .eq("id", hitoId);
+        
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["mudanza", mudanzaId] });
+      setIsEditing(false);
+      toast.success("Hito actualizado exitosamente");
+    },
+    onError: () => {
+      toast.error("Error al actualizar el hito");
+    },
+  });
 
   const getSLAStatus = () => {
     if (hito.completado && hito.fecha_real && hito.fecha_plan) {
@@ -149,43 +260,140 @@ export function TimelineHito({
 
           {/* Contenido expandido */}
           {expanded && (
-            <div className="px-4 pb-4 border-t space-y-3">
-              {hito.responsable && (
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Responsable</p>
-                  <p className="text-sm font-medium">{hito.responsable}</p>
-                </div>
-              )}
-
-              {hito.comentarios && (
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Comentarios</p>
-                  <p className="text-sm">{hito.comentarios}</p>
-                </div>
-              )}
-
-              {hito.documentos && hito.documentos.length > 0 && (
-                <div>
-                  <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-                    <FileCheck className="w-3 h-3" />
-                    Documentos requeridos ({hito.documentos.length})
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {hito.documentos.map((doc, idx) => (
-                      <Badge key={idx} variant="outline" className="text-xs">
-                        {doc}
-                      </Badge>
-                    ))}
+            <div className="px-4 pb-4 border-t pt-4 space-y-4">
+              {isEditing ? (
+                <div className="space-y-4">
+                  <div className="grid gap-4">
+                    <div>
+                      <Label htmlFor="fecha_plan">Fecha Planificada</Label>
+                      <Input
+                        id="fecha_plan"
+                        type="date"
+                        value={editData.fecha_plan}
+                        onChange={(e) => setEditData({ ...editData, fecha_plan: e.target.value })}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="sla_dias">SLA (días)</Label>
+                      <Input
+                        id="sla_dias"
+                        type="number"
+                        value={editData.sla_dias}
+                        onChange={(e) => setEditData({ ...editData, sla_dias: parseInt(e.target.value) || 0 })}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="responsable">Responsable</Label>
+                      <Input
+                        id="responsable"
+                        value={editData.responsable}
+                        onChange={(e) => setEditData({ ...editData, responsable: e.target.value })}
+                        placeholder="Nombre del responsable"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="comentarios">Comentarios</Label>
+                      <Textarea
+                        id="comentarios"
+                        value={editData.comentarios}
+                        onChange={(e) => setEditData({ ...editData, comentarios: e.target.value })}
+                        placeholder="Notas o comentarios sobre este hito"
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={() => guardarHitoMutation.mutate()}
+                      disabled={guardarHitoMutation.isPending}
+                      className="flex-1"
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      Guardar
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setIsEditing(false);
+                        setEditData({
+                          fecha_plan: hito.fecha_plan || "",
+                          responsable: hito.responsable || "",
+                          comentarios: hito.comentarios || "",
+                          sla_dias: hito.sla_dias || 7,
+                        });
+                      }}
+                    >
+                      <X className="w-4 h-4 mr-2" />
+                      Cancelar
+                    </Button>
                   </div>
                 </div>
-              )}
+              ) : (
+                <>
+                  {hito.responsable && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Responsable</p>
+                      <p className="text-sm font-medium">{hito.responsable}</p>
+                    </div>
+                  )}
 
-              {isActual && (
-                <div className="pt-2">
-                  <Button size="sm" className="w-full">
-                    Completar Etapa
-                  </Button>
-                </div>
+                  {hito.comentarios && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Comentarios</p>
+                      <p className="text-sm">{hito.comentarios}</p>
+                    </div>
+                  )}
+
+                  {hito.documentos && hito.documentos.length > 0 && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                        <FileCheck className="w-3 h-3" />
+                        Documentos requeridos ({hito.documentos.length})
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {hito.documentos.map((doc, idx) => (
+                          <Badge key={idx} variant="outline" className="text-xs">
+                            {doc}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex gap-2 pt-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="flex-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsEditing(true);
+                      }}
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Editar
+                    </Button>
+                    
+                    {!hito.completado && (
+                      <Button 
+                        size="sm"
+                        className="flex-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          completarHitoMutation.mutate();
+                        }}
+                        disabled={completarHitoMutation.isPending}
+                      >
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        {completarHitoMutation.isPending ? "Completando..." : "Completar"}
+                      </Button>
+                    )}
+                  </div>
+                </>
               )}
             </div>
           )}
