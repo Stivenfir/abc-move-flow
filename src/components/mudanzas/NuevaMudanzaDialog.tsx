@@ -85,7 +85,7 @@ export function NuevaMudanzaDialog() {
           peso_estimado: values.peso_estimado,
           valor_declarado: values.valor_declarado,
           fecha_inspeccion: values.fecha_inspeccion,
-          coordinador_id: '00000000-0000-0000-0000-000000000000',
+          coordinador_id: null,
           estado: "inspeccion" as const,
         }])
         .select()

@@ -862,7 +862,7 @@ export type Database = {
         Row: {
           agente_id: string | null
           cliente_id: string
-          coordinador_id: string
+          coordinador_id: string | null
           created_at: string
           destino_ciudad: string
           destino_direccion: string | null
@@ -889,7 +889,7 @@ export type Database = {
         Insert: {
           agente_id?: string | null
           cliente_id: string
-          coordinador_id: string
+          coordinador_id?: string | null
           created_at?: string
           destino_ciudad: string
           destino_direccion?: string | null
@@ -916,7 +916,7 @@ export type Database = {
         Update: {
           agente_id?: string | null
           cliente_id?: string
-          coordinador_id?: string
+          coordinador_id?: string | null
           created_at?: string
           destino_ciudad?: string
           destino_direccion?: string | null
