@@ -14,6 +14,133 @@ export type Database = {
   }
   public: {
     Tables: {
+      aduanas: {
+        Row: {
+          arrival_notice_url: string | null
+          awb_number: string | null
+          bl_number: string | null
+          created_at: string | null
+          descripcion_novedad: string | null
+          documentos_completos: boolean | null
+          documentos_dian_url: string[] | null
+          estado: string
+          factura_flete_url: string | null
+          fecha_arribo: string | null
+          fecha_inspeccion: string | null
+          fecha_levante_real: string | null
+          fecha_limite_levante: string | null
+          id: string
+          levante_aprobado: boolean | null
+          levante_con_novedad: boolean | null
+          mudanza_id: string
+          notas: string | null
+          numero_declaracion: string | null
+          resultado_inspeccion: string | null
+          tiene_inspeccion: boolean | null
+          tipo_servicio: string
+          updated_at: string | null
+        }
+        Insert: {
+          arrival_notice_url?: string | null
+          awb_number?: string | null
+          bl_number?: string | null
+          created_at?: string | null
+          descripcion_novedad?: string | null
+          documentos_completos?: boolean | null
+          documentos_dian_url?: string[] | null
+          estado?: string
+          factura_flete_url?: string | null
+          fecha_arribo?: string | null
+          fecha_inspeccion?: string | null
+          fecha_levante_real?: string | null
+          fecha_limite_levante?: string | null
+          id?: string
+          levante_aprobado?: boolean | null
+          levante_con_novedad?: boolean | null
+          mudanza_id: string
+          notas?: string | null
+          numero_declaracion?: string | null
+          resultado_inspeccion?: string | null
+          tiene_inspeccion?: boolean | null
+          tipo_servicio: string
+          updated_at?: string | null
+        }
+        Update: {
+          arrival_notice_url?: string | null
+          awb_number?: string | null
+          bl_number?: string | null
+          created_at?: string | null
+          descripcion_novedad?: string | null
+          documentos_completos?: boolean | null
+          documentos_dian_url?: string[] | null
+          estado?: string
+          factura_flete_url?: string | null
+          fecha_arribo?: string | null
+          fecha_inspeccion?: string | null
+          fecha_levante_real?: string | null
+          fecha_limite_levante?: string | null
+          id?: string
+          levante_aprobado?: boolean | null
+          levante_con_novedad?: boolean | null
+          mudanza_id?: string
+          notas?: string | null
+          numero_declaracion?: string | null
+          resultado_inspeccion?: string | null
+          tiene_inspeccion?: boolean | null
+          tipo_servicio?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aduanas_mudanza_id_fkey"
+            columns: ["mudanza_id"]
+            isOneToOne: false
+            referencedRelation: "mudanzas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aduanas_checklist: {
+        Row: {
+          aduanas_id: string
+          completado: boolean | null
+          created_at: string | null
+          fecha_completado: string | null
+          id: string
+          item: string
+          notas: string | null
+          responsable: string | null
+        }
+        Insert: {
+          aduanas_id: string
+          completado?: boolean | null
+          created_at?: string | null
+          fecha_completado?: string | null
+          id?: string
+          item: string
+          notas?: string | null
+          responsable?: string | null
+        }
+        Update: {
+          aduanas_id?: string
+          completado?: boolean | null
+          created_at?: string | null
+          fecha_completado?: string | null
+          id?: string
+          item?: string
+          notas?: string | null
+          responsable?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aduanas_checklist_aduanas_id_fkey"
+            columns: ["aduanas_id"]
+            isOneToOne: false
+            referencedRelation: "aduanas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_communications: {
         Row: {
           agent_id: string
@@ -475,6 +602,83 @@ export type Database = {
           },
         ]
       }
+      booking: {
+        Row: {
+          bl_draft_url: string | null
+          bl_final_url: string | null
+          bl_number: string | null
+          booking_number: string | null
+          certificados_url: string[] | null
+          created_at: string | null
+          cutoff_documental: string | null
+          cutoff_fisico: string | null
+          dex_number: string | null
+          estado: string
+          fecha_confirmacion: string | null
+          fecha_solicitud: string | null
+          id: string
+          mudanza_id: string
+          naviera: string | null
+          notas: string | null
+          shipping_instructions_url: string | null
+          terminal: string | null
+          tipo_contenedor: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          bl_draft_url?: string | null
+          bl_final_url?: string | null
+          bl_number?: string | null
+          booking_number?: string | null
+          certificados_url?: string[] | null
+          created_at?: string | null
+          cutoff_documental?: string | null
+          cutoff_fisico?: string | null
+          dex_number?: string | null
+          estado?: string
+          fecha_confirmacion?: string | null
+          fecha_solicitud?: string | null
+          id?: string
+          mudanza_id: string
+          naviera?: string | null
+          notas?: string | null
+          shipping_instructions_url?: string | null
+          terminal?: string | null
+          tipo_contenedor?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          bl_draft_url?: string | null
+          bl_final_url?: string | null
+          bl_number?: string | null
+          booking_number?: string | null
+          certificados_url?: string[] | null
+          created_at?: string | null
+          cutoff_documental?: string | null
+          cutoff_fisico?: string | null
+          dex_number?: string | null
+          estado?: string
+          fecha_confirmacion?: string | null
+          fecha_solicitud?: string | null
+          id?: string
+          mudanza_id?: string
+          naviera?: string | null
+          notas?: string | null
+          shipping_instructions_url?: string | null
+          terminal?: string | null
+          tipo_contenedor?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_mudanza_id_fkey"
+            columns: ["mudanza_id"]
+            isOneToOne: false
+            referencedRelation: "mudanzas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clientes: {
         Row: {
           ciudad: string | null
@@ -582,6 +786,74 @@ export type Database = {
             columns: ["remitente_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contenedores: {
+        Row: {
+          alertas_activas: boolean | null
+          costo_demurrage: number | null
+          costo_detention: number | null
+          created_at: string | null
+          dias_libres: number | null
+          estado: string
+          fecha_arribo: string | null
+          fecha_devolucion_real: string | null
+          fecha_limite_devolucion: string
+          id: string
+          lugar_devolucion: string | null
+          mudanza_id: string
+          naviera: string | null
+          notas: string | null
+          numero_contenedor: string
+          tipo: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          alertas_activas?: boolean | null
+          costo_demurrage?: number | null
+          costo_detention?: number | null
+          created_at?: string | null
+          dias_libres?: number | null
+          estado?: string
+          fecha_arribo?: string | null
+          fecha_devolucion_real?: string | null
+          fecha_limite_devolucion: string
+          id?: string
+          lugar_devolucion?: string | null
+          mudanza_id: string
+          naviera?: string | null
+          notas?: string | null
+          numero_contenedor: string
+          tipo?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          alertas_activas?: boolean | null
+          costo_demurrage?: number | null
+          costo_detention?: number | null
+          created_at?: string | null
+          dias_libres?: number | null
+          estado?: string
+          fecha_arribo?: string | null
+          fecha_devolucion_real?: string | null
+          fecha_limite_devolucion?: string
+          id?: string
+          lugar_devolucion?: string | null
+          mudanza_id?: string
+          naviera?: string | null
+          notas?: string | null
+          numero_contenedor?: string
+          tipo?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contenedores_mudanza_id_fkey"
+            columns: ["mudanza_id"]
+            isOneToOne: false
+            referencedRelation: "mudanzas"
             referencedColumns: ["id"]
           },
         ]
@@ -882,6 +1154,7 @@ export type Database = {
           prioridad: Database["public"]["Enums"]["prioridad"]
           progreso: number | null
           tipo: Database["public"]["Enums"]["tipo_mudanza"]
+          tipo_operacion: Database["public"]["Enums"]["tipo_operacion"] | null
           updated_at: string
           valor_declarado: number | null
           volumen_estimado: number | null
@@ -909,6 +1182,7 @@ export type Database = {
           prioridad?: Database["public"]["Enums"]["prioridad"]
           progreso?: number | null
           tipo: Database["public"]["Enums"]["tipo_mudanza"]
+          tipo_operacion?: Database["public"]["Enums"]["tipo_operacion"] | null
           updated_at?: string
           valor_declarado?: number | null
           volumen_estimado?: number | null
@@ -936,6 +1210,7 @@ export type Database = {
           prioridad?: Database["public"]["Enums"]["prioridad"]
           progreso?: number | null
           tipo?: Database["public"]["Enums"]["tipo_mudanza"]
+          tipo_operacion?: Database["public"]["Enums"]["tipo_operacion"] | null
           updated_at?: string
           valor_declarado?: number | null
           volumen_estimado?: number | null
@@ -1108,6 +1383,19 @@ export type Database = {
         | "aduana"
         | "entrega"
         | "cerrado"
+        | "cotizacion_enviada"
+        | "cotizacion_aceptada"
+        | "programacion_empaque"
+        | "booking_solicitado"
+        | "booking_confirmado"
+        | "traslado_puerto"
+        | "exportacion_completa"
+        | "en_transito_internacional"
+        | "arribado_puerto"
+        | "en_proceso_aduanas"
+        | "levante_aprobado"
+        | "programando_entrega"
+        | "contenedor_devuelto"
       modo_transporte: "aereo" | "maritimo" | "terrestre"
       prioridad: "baja" | "media" | "alta" | "urgente"
       tipo_cliente: "individual" | "corporativo" | "diplomatico"
@@ -1119,6 +1407,7 @@ export type Database = {
         | "privada"
         | "local"
         | "internacional"
+      tipo_operacion: "exportacion" | "importacion"
       user_role:
         | "admin"
         | "coordinador"
@@ -1265,6 +1554,19 @@ export const Constants = {
         "aduana",
         "entrega",
         "cerrado",
+        "cotizacion_enviada",
+        "cotizacion_aceptada",
+        "programacion_empaque",
+        "booking_solicitado",
+        "booking_confirmado",
+        "traslado_puerto",
+        "exportacion_completa",
+        "en_transito_internacional",
+        "arribado_puerto",
+        "en_proceso_aduanas",
+        "levante_aprobado",
+        "programando_entrega",
+        "contenedor_devuelto",
       ],
       modo_transporte: ["aereo", "maritimo", "terrestre"],
       prioridad: ["baja", "media", "alta", "urgente"],
@@ -1278,6 +1580,7 @@ export const Constants = {
         "local",
         "internacional",
       ],
+      tipo_operacion: ["exportacion", "importacion"],
       user_role: [
         "admin",
         "coordinador",
