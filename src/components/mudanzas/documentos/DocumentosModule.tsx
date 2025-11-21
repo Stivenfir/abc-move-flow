@@ -15,7 +15,7 @@ export function DocumentosModule({ mudanzaId, mudanzaData }: DocumentosModulePro
   const [activeTab, setActiveTab] = useState("lista");
 
   return (
-    <Card>
+    <Card data-module="documentos">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileText className="w-5 h-5 text-primary" />
