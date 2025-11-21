@@ -4,6 +4,7 @@ export const mockMudanzas: Mudanza[] = [
   {
     id: "1",
     numero: "MUD-2025-001",
+    tipo_operacion: "exportacion",
     cliente: {
       id: "c1",
       nombre: "María Rodríguez",
@@ -46,6 +47,7 @@ export const mockMudanzas: Mudanza[] = [
   {
     id: "2",
     numero: "MUD-2025-002",
+    tipo_operacion: "exportacion",
     cliente: {
       id: "c2",
       nombre: "Carlos Mendoza",
@@ -88,6 +90,7 @@ export const mockMudanzas: Mudanza[] = [
   {
     id: "3",
     numero: "MUD-2025-003",
+    tipo_operacion: "importacion",
     cliente: {
       id: "c3",
       nombre: "Embajada de Francia",
