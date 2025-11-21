@@ -3,23 +3,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 import { 
   CheckCircle2, Clock, AlertTriangle, Calendar, 
-  FileCheck, ChevronDown, ChevronUp, Edit, Save, X
+  FileCheck, ChevronDown, ChevronUp, Edit, Save, X,
+  FileText, Upload, Eye, Check, Circle
 } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { es } from "date-fns/locale";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 interface TimelineHitoProps {
   hito: {
     id: string;
     estado: string;
+    mudanza_id?: string;
     fecha_plan?: string;
     fecha_real?: string;
     completado: boolean;
@@ -34,6 +37,85 @@ interface TimelineHitoProps {
   isPendiente: boolean;
 }
 
+// Documentos requeridos por estado
+const documentosRequeridos: Record<string, { nombre: string; obligatorio: boolean }[]> = {
+  inspeccion: [
+    { nombre: "Reporte de inspección", obligatorio: true },
+    { nombre: "Fotos de la carga", obligatorio: true },
+  ],
+  cotizacion: [
+    { nombre: "Cotización PDF", obligatorio: true },
+    { nombre: "Términos y condiciones", obligatorio: false },
+  ],
+  cotizacion_enviada: [
+    { nombre: "Cotización PDF", obligatorio: true },
+  ],
+  cotizacion_aceptada: [
+    { nombre: "Cotización firmada", obligatorio: true },
+  ],
+  booking: [
+    { nombre: "Booking confirmation", obligatorio: true },
+    { nombre: "Shipping instructions", obligatorio: false },
+  ],
+  booking_solicitado: [
+    { nombre: "Solicitud de booking", obligatorio: true },
+  ],
+  booking_confirmado: [
+    { nombre: "Booking confirmation", obligatorio: true },
+  ],
+  programacion_empaque: [
+    { nombre: "Cronograma de empaque", obligatorio: true },
+  ],
+  empaque: [
+    { nombre: "Packing list final", obligatorio: true },
+    { nombre: "Fotos del empaque", obligatorio: true },
+  ],
+  bodega: [
+    { nombre: "Recibo de bodega", obligatorio: true },
+  ],
+  despacho: [
+    { nombre: "Bill of Lading (BL)", obligatorio: true },
+    { nombre: "DEX", obligatorio: true },
+    { nombre: "Certificados ISPM15", obligatorio: false },
+  ],
+  traslado_puerto: [
+    { nombre: "Guía de traslado", obligatorio: true },
+  ],
+  exportacion_completa: [
+    { nombre: "BL Final", obligatorio: true },
+  ],
+  transito: [
+    { nombre: "Tracking marítimo/aéreo", obligatorio: false },
+  ],
+  en_transito_internacional: [
+    { nombre: "Tracking internacional", obligatorio: false },
+  ],
+  arribado_puerto: [
+    { nombre: "Arrival notice", obligatorio: true },
+  ],
+  aduana: [
+    { nombre: "Arrival notice", obligatorio: true },
+    { nombre: "Declaración aduanal", obligatorio: true },
+    { nombre: "Levante", obligatorio: true },
+  ],
+  en_proceso_aduanas: [
+    { nombre: "Declaración aduanal", obligatorio: true },
+  ],
+  levante_aprobado: [
+    { nombre: "Levante aprobado", obligatorio: true },
+  ],
+  programando_entrega: [
+    { nombre: "Orden de entrega", obligatorio: true },
+  ],
+  entrega: [
+    { nombre: "Orden de entrega", obligatorio: true },
+    { nombre: "Acta de conformidad", obligatorio: true },
+  ],
+  contenedor_devuelto: [
+    { nombre: "Comprobante de devolución", obligatorio: true },
+  ],
+};
+
 export function TimelineHito({ 
   hito, 
   estadoLabel, 
@@ -42,9 +124,11 @@ export function TimelineHito({
   isPendiente 
 }: TimelineHitoProps) {
   const { id: mudanzaId } = useParams();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [expanded, setExpanded] = useState(isActual);
   const [isEditing, setIsEditing] = useState(false);
+  const [showDocuments, setShowDocuments] = useState(false);
   const [editData, setEditData] = useState({
     fecha_plan: hito.fecha_plan || "",
     responsable: hito.responsable || "",
@@ -52,8 +136,47 @@ export function TimelineHito({
     sla_dias: hito.sla_dias || 7,
   });
 
+  // Obtener documentos de esta mudanza
+  const { data: documentos = [] } = useQuery({
+    queryKey: ["documentos", mudanzaId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("documentos")
+        .select("*")
+        .eq("mudanza_id", mudanzaId);
+      
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!mudanzaId,
+  });
+
+  // Documentos requeridos para este estado
+  const docsRequeridos = documentosRequeridos[hito.estado] || [];
+  
+  // Verificar si hay documentos cargados que coincidan con los requeridos
+  const documentosEstado = docsRequeridos.map(req => {
+    const encontrado = documentos.find(doc => 
+      doc.nombre.toLowerCase().includes(req.nombre.toLowerCase()) ||
+      doc.tipo.toLowerCase().includes(req.nombre.toLowerCase().replace(/ /g, '-'))
+    );
+    return {
+      ...req,
+      cargado: !!encontrado,
+      documento: encontrado,
+    };
+  });
+
+  const documentosObligatoriosFaltantes = documentosEstado.filter(
+    d => d.obligatorio && !d.cargado
+  ).length;
+
   const completarHitoMutation = useMutation({
     mutationFn: async () => {
+      if (documentosObligatoriosFaltantes > 0) {
+        throw new Error(`Faltan ${documentosObligatoriosFaltantes} documentos obligatorios`);
+      }
+
       const hitoId = hito.id?.startsWith('temp-') ? null : hito.id;
       
       if (!hitoId) {
@@ -98,8 +221,8 @@ export function TimelineHito({
       queryClient.invalidateQueries({ queryKey: ["mudanza", mudanzaId] });
       toast.success("Hito completado exitosamente");
     },
-    onError: () => {
-      toast.error("Error al completar el hito");
+    onError: (error: Error) => {
+      toast.error(error.message || "Error al completar el hito");
     },
   });
 
@@ -228,6 +351,11 @@ export function TimelineHito({
                       {slaStatus.label}
                     </Badge>
                   )}
+                  {docsRequeridos.length > 0 && documentosObligatoriosFaltantes > 0 && (
+                    <Badge variant="destructive" className="text-xs">
+                      {documentosObligatoriosFaltantes} docs faltantes
+                    </Badge>
+                  )}
                 </div>
                 
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -348,20 +476,92 @@ export function TimelineHito({
                     </div>
                   )}
 
-                  {hito.documentos && hito.documentos.length > 0 && (
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-                        <FileCheck className="w-3 h-3" />
-                        Documentos requeridos ({hito.documentos.length})
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {hito.documentos.map((doc, idx) => (
-                          <Badge key={idx} variant="outline" className="text-xs">
-                            {doc}
-                          </Badge>
-                        ))}
+                  {/* Sección de Documentos */}
+                  {docsRequeridos.length > 0 && (
+                    <>
+                      <Separator />
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <FileText className="w-4 h-4 text-primary" />
+                            <span className="font-medium text-sm">
+                              Documentos Requeridos
+                            </span>
+                            {documentosObligatoriosFaltantes > 0 && (
+                              <Badge variant="destructive" className="text-xs">
+                                {documentosObligatoriosFaltantes} obligatorios faltantes
+                              </Badge>
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowDocuments(!showDocuments);
+                            }}
+                          >
+                            {showDocuments ? "Ocultar" : "Ver"}
+                          </Button>
+                        </div>
+
+                        {showDocuments && (
+                          <div className="space-y-2 pl-6">
+                            {documentosEstado.map((doc, idx) => (
+                              <div
+                                key={idx}
+                                className="flex items-center justify-between p-2 rounded-md bg-muted/50 text-sm"
+                              >
+                                <div className="flex items-center gap-2">
+                                  {doc.cargado ? (
+                                    <Check className="w-4 h-4 text-success" />
+                                  ) : (
+                                    <Circle className="w-4 h-4 text-muted-foreground" />
+                                  )}
+                                  <span className={doc.cargado ? "text-muted-foreground line-through" : ""}>
+                                    {doc.nombre}
+                                  </span>
+                                  {doc.obligatorio && !doc.cargado && (
+                                    <Badge variant="outline" className="text-xs">
+                                      Obligatorio
+                                    </Badge>
+                                  )}
+                                </div>
+                                {doc.cargado && doc.documento && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      window.open(doc.documento.url, "_blank");
+                                    }}
+                                  >
+                                    <Eye className="w-4 h-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            ))}
+                            
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full mt-2"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // Scroll to documents module
+                                const docsModule = document.querySelector('[data-module="documentos"]');
+                                if (docsModule) {
+                                  docsModule.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }
+                              }}
+                            >
+                              <Upload className="w-4 h-4 mr-2" />
+                              Ir a Módulo de Documentos
+                            </Button>
+                          </div>
+                        )}
                       </div>
-                    </div>
+                    </>
                   )}
 
                   <div className="flex gap-2 pt-2">
@@ -386,7 +586,7 @@ export function TimelineHito({
                           e.stopPropagation();
                           completarHitoMutation.mutate();
                         }}
-                        disabled={completarHitoMutation.isPending}
+                        disabled={completarHitoMutation.isPending || documentosObligatoriosFaltantes > 0}
                       >
                         <CheckCircle2 className="w-4 h-4 mr-2" />
                         {completarHitoMutation.isPending ? "Completando..." : "Completar"}
