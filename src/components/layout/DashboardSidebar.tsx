@@ -1,4 +1,4 @@
-import { Home, Package, Users, Globe, FileText, Settings, BarChart3, Warehouse, DollarSign, UserCircle } from "lucide-react";
+import { Home, Package, Users, Globe, FileText, Settings, BarChart3, Warehouse, DollarSign, UserCircle, Shield } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -18,6 +18,7 @@ const menuItems = [
   { title: "Mudanzas", icon: Package, url: "/mudanzas" },
   { title: "Agentes", icon: Globe, url: "/agentes" },
   { title: "Clientes", icon: Users, url: "/clientes" },
+  { title: "Aduanas", icon: Shield, url: "/aduanas" },
   { title: "Bodega", icon: Warehouse, url: "/bodega" },
   { title: "Documentos", icon: FileText, url: "/documentos" },
 ];
