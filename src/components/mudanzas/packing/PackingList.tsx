@@ -1,17 +1,56 @@
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Package, Edit, Trash2, QrCode, Image } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Package, QrCode, FileText, CheckCircle2, Sofa, CookingPot, BedDouble, BookOpen, ChevronDown, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
+import { jsPDF } from "jspdf";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 interface PackingListProps {
   mudanzaId: string;
 }
 
+const HABITACION_ICONS: Record<string, typeof Sofa> = {
+  "Sala": Sofa,
+  "Cocina": CookingPot,
+  "Dormitorio Principal": BedDouble,
+  "Estudio": BookOpen,
+};
+
+function parseMeta(notas: string | null) {
+  const fragilidad = notas?.match(/Fragilidad:\s*(alta|media|baja)/i)?.[1]?.toLowerCase() || "baja";
+  const marca = notas?.match(/Marca:\s*([^.]+)/)?.[1]?.trim() || "";
+  const modelo = notas?.match(/Modelo:\s*([^.]+)/)?.[1]?.trim() || "";
+  return { fragilidad, marca, modelo };
+}
+
+function FragilidadBadge({ nivel }: { nivel: string }) {
+  const map: Record<string, string> = {
+    alta: "bg-red-500/15 text-red-700 border-red-200",
+    media: "bg-amber-500/15 text-amber-700 border-amber-200",
+    baja: "bg-emerald-500/15 text-emerald-700 border-emerald-200",
+  };
+  return <Badge className={map[nivel] || map.baja}>{nivel}</Badge>;
+}
+
+function EstadoItemBadge({ ubicacion }: { ubicacion: string | null }) {
+  if (!ubicacion) return <Badge variant="outline">Pendiente</Badge>;
+  // Infer state from ubicacion_bodega presence
+  return <Badge className="bg-blue-500/15 text-blue-700 border-blue-200">Almacenado</Badge>;
+}
+
 export function PackingList({ mudanzaId }: PackingListProps) {
+  const [expandedRooms, setExpandedRooms] = useState<Set<string>>(new Set(["Sala", "Cocina", "Dormitorio Principal", "Estudio"]));
+  const [clienteAprobado, setClienteAprobado] = useState(false);
+  const [fechaAprobacion, setFechaAprobacion] = useState<string | null>(null);
+
   const { data: items, isLoading } = useQuery({
     queryKey: ["inventario", mudanzaId],
     queryFn: async () => {
@@ -19,45 +58,117 @@ export function PackingList({ mudanzaId }: PackingListProps) {
         .from("inventario")
         .select("*")
         .eq("mudanza_id", mudanzaId)
-        .order("created_at", { ascending: false });
-
+        .order("habitacion", { ascending: true });
       if (error) throw error;
       return data;
     },
   });
 
-  const getCondicionColor = (condicion: string) => {
-    const colors = {
-      excelente: "bg-success text-white",
-      buena: "bg-blue-500 text-white",
-      regular: "bg-amber-500 text-white",
-      dañado: "bg-destructive text-white",
-    };
-    return colors[condicion as keyof typeof colors] || "bg-gray-500 text-white";
+  const grouped = useMemo(() => {
+    if (!items) return {};
+    const g: Record<string, typeof items> = {};
+    items.forEach(i => {
+      const room = i.habitacion || "Otros";
+      if (!g[room]) g[room] = [];
+      g[room].push(i);
+    });
+    return g;
+  }, [items]);
+
+  const toggleRoom = (room: string) => {
+    setExpandedRooms(prev => {
+      const next = new Set(prev);
+      next.has(room) ? next.delete(room) : next.add(room);
+      return next;
+    });
   };
 
-  const downloadQR = async (qrData: string, itemId: string) => {
+  const handleAprobacion = () => {
+    setClienteAprobado(true);
+    setFechaAprobacion(new Date().toISOString());
+    toast.success("Inventario aprobado por el cliente");
+  };
+
+  const generatePDF = () => {
+    if (!items || items.length === 0) {
+      toast.error("No hay items en el inventario");
+      return;
+    }
     try {
-      const QRCode = (await import("qrcode")).default;
-      const url = await QRCode.toDataURL(qrData, { width: 500 });
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `QR-${itemId}.png`;
-      link.click();
-      toast.success("Código QR descargado");
+      const doc = new jsPDF();
+      const pw = doc.internal.pageSize.getWidth();
+      let y = 20;
+
+      doc.setFontSize(18);
+      doc.setFont("helvetica", "bold");
+      doc.text("PACKING LIST — INVENTARIO", pw / 2, y, { align: "center" });
+      y += 8;
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Generado: ${format(new Date(), "dd/MM/yyyy HH:mm", { locale: es })}`, pw / 2, y, { align: "center" });
+      y += 12;
+
+      const totalVol = items.reduce((s, i) => s + Number(i.volumen || 0), 0);
+      const totalPeso = items.reduce((s, i) => s + Number(i.peso || 0), 0);
+      const totalValor = items.reduce((s, i) => s + Number(i.valor_declarado || 0), 0);
+
+      doc.setFontSize(10);
+      doc.text(`Items: ${items.length}  |  Vol: ${totalVol.toFixed(1)} m³  |  Peso: ${totalPeso.toFixed(1)} kg  |  Valor: $${totalValor.toLocaleString()} USD`, 20, y);
+      y += 12;
+
+      Object.entries(grouped).forEach(([room, roomItems]) => {
+        if (y > 260) { doc.addPage(); y = 20; }
+
+        doc.setFillColor(240, 240, 240);
+        doc.rect(20, y - 4, pw - 40, 8, "F");
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.text(`${room} (${roomItems.length})`, 22, y + 1);
+        y += 10;
+
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "bold");
+        doc.text("#", 22, y);
+        doc.text("Descripción", 30, y);
+        doc.text("Cond.", 100, y);
+        doc.text("m³", 120, y);
+        doc.text("kg", 135, y);
+        doc.text("USD", 148, y);
+        doc.text("Fragil.", 168, y);
+        y += 5;
+
+        doc.setFont("helvetica", "normal");
+        roomItems.forEach((item, idx) => {
+          if (y > 275) { doc.addPage(); y = 20; }
+          const meta = parseMeta(item.notas);
+          doc.text(`${idx + 1}`, 22, y);
+          doc.text(item.descripcion.substring(0, 35), 30, y);
+          doc.text(item.condicion, 100, y);
+          doc.text(`${Number(item.volumen || 0).toFixed(1)}`, 120, y);
+          doc.text(`${Number(item.peso || 0).toFixed(0)}`, 135, y);
+          doc.text(`$${Number(item.valor_declarado || 0).toLocaleString()}`, 148, y);
+          doc.text(meta.fragilidad, 168, y);
+          y += 5;
+        });
+        y += 5;
+      });
+
+      if (clienteAprobado && fechaAprobacion) {
+        y += 10;
+        doc.setFont("helvetica", "bold");
+        doc.text(`✓ Cliente aprobó inventario: ${format(new Date(fechaAprobacion), "dd/MM/yyyy HH:mm")}`, 20, y);
+      }
+
+      doc.save(`Packing-List-${mudanzaId.substring(0, 8)}.pdf`);
+      toast.success("Packing List PDF generado");
     } catch (error) {
-      toast.error("Error al descargar QR");
+      console.error(error);
+      toast.error("Error al generar PDF");
     }
   };
 
   if (isLoading) {
-    return (
-      <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-32 w-full" />
-        ))}
-      </div>
-    );
+    return <div className="space-y-4">{[1, 2, 3].map(i => <Skeleton key={i} className="h-24 w-full" />)}</div>;
   }
 
   if (!items || items.length === 0) {
@@ -65,109 +176,140 @@ export function PackingList({ mudanzaId }: PackingListProps) {
       <div className="text-center py-12">
         <Package className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
         <h3 className="text-lg font-semibold mb-2">No hay items registrados</h3>
-        <p className="text-muted-foreground">
-          Comienza agregando items al inventario
-        </p>
+        <p className="text-muted-foreground">Comienza agregando items al inventario</p>
       </div>
     );
   }
 
+  const totalVol = items.reduce((s, i) => s + Number(i.volumen || 0), 0);
+  const totalPeso = items.reduce((s, i) => s + Number(i.peso || 0), 0);
+  const totalValor = items.reduce((s, i) => s + Number(i.valor_declarado || 0), 0);
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold">Items Registrados</h3>
-          <p className="text-sm text-muted-foreground">
-            Total: {items.length} items | Volumen: {items.reduce((acc, item) => acc + (item.volumen || 0), 0).toFixed(2)} m³
-          </p>
+      {/* Summary Bar */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="p-3 rounded-lg bg-muted/50 border text-center">
+          <p className="text-xs text-muted-foreground">Items</p>
+          <p className="text-xl font-bold">{items.length}</p>
+        </div>
+        <div className="p-3 rounded-lg bg-muted/50 border text-center">
+          <p className="text-xs text-muted-foreground">Volumen</p>
+          <p className="text-xl font-bold">{totalVol.toFixed(1)} m³</p>
+        </div>
+        <div className="p-3 rounded-lg bg-muted/50 border text-center">
+          <p className="text-xs text-muted-foreground">Peso</p>
+          <p className="text-xl font-bold">{totalPeso.toFixed(0)} kg</p>
+        </div>
+        <div className="p-3 rounded-lg bg-muted/50 border text-center">
+          <p className="text-xs text-muted-foreground">Valor Total</p>
+          <p className="text-xl font-bold">${totalValor.toLocaleString()}</p>
         </div>
       </div>
 
-      <div className="space-y-3">
-        {items.map((item) => (
-          <Card key={item.id}>
-            <CardContent className="p-4">
-              <div className="flex items-start gap-4">
-                {/* Item Icon/Photo */}
-                <div className="w-20 h-20 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                  {item.fotos && item.fotos.length > 0 ? (
-                    <Image className="w-8 h-8 text-muted-foreground" />
-                  ) : (
-                    <Package className="w-8 h-8 text-muted-foreground" />
-                  )}
+      {/* Grouped by Room */}
+      {Object.entries(grouped).map(([room, roomItems]) => {
+        const RoomIcon = HABITACION_ICONS[room] || Package;
+        const isExpanded = expandedRooms.has(room);
+        return (
+          <Card key={room}>
+            <CardHeader
+              className="cursor-pointer py-3 px-4"
+              onClick={() => toggleRoom(room)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                  <RoomIcon className="w-4 h-4 text-primary" />
+                  <CardTitle className="text-sm">{room}</CardTitle>
+                  <Badge variant="outline" className="text-xs">{roomItems.length} items</Badge>
                 </div>
-
-                {/* Item Details */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-4 mb-2">
-                    <div>
-                      <h4 className="font-semibold text-base">{item.descripcion}</h4>
-                      <p className="text-sm text-muted-foreground">{item.habitacion}</p>
-                    </div>
-                    <Badge className={getCondicionColor(item.condicion)}>
-                      {item.condicion}
-                    </Badge>
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                    <div>
-                      <p className="text-muted-foreground">Cantidad</p>
-                      <p className="font-medium">{item.cantidad}</p>
-                    </div>
-                    {item.volumen && (
-                      <div>
-                        <p className="text-muted-foreground">Volumen</p>
-                        <p className="font-medium">{item.volumen} m³</p>
-                      </div>
-                    )}
-                    {item.peso && (
-                      <div>
-                        <p className="text-muted-foreground">Peso</p>
-                        <p className="font-medium">{item.peso} kg</p>
-                      </div>
-                    )}
-                    {item.valor_declarado && (
-                      <div>
-                        <p className="text-muted-foreground">Valor</p>
-                        <p className="font-medium">${item.valor_declarado}</p>
-                      </div>
-                    )}
-                  </div>
-
-                  {item.embalaje && (
-                    <div className="mt-2">
-                      <Badge variant="outline">{item.embalaje}</Badge>
-                    </div>
-                  )}
-
-                  {item.notas && (
-                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                      {item.notas}
-                    </p>
-                  )}
-                </div>
-
-                {/* Actions */}
-                <div className="flex flex-col gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => item.codigo_qr && downloadQR(item.codigo_qr, item.id)}
-                  >
-                    <QrCode className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
+                <span className="text-xs text-muted-foreground">
+                  {roomItems.reduce((s, i) => s + Number(i.volumen || 0), 0).toFixed(1)} m³ · ${roomItems.reduce((s, i) => s + Number(i.valor_declarado || 0), 0).toLocaleString()}
+                </span>
               </div>
-            </CardContent>
+            </CardHeader>
+            {isExpanded && (
+              <CardContent className="pt-0 px-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Descripción</TableHead>
+                      <TableHead>Marca/Modelo</TableHead>
+                      <TableHead>Condición</TableHead>
+                      <TableHead className="text-right">USD</TableHead>
+                      <TableHead className="text-right">m³</TableHead>
+                      <TableHead className="text-right">kg</TableHead>
+                      <TableHead>Fragilidad</TableHead>
+                      <TableHead>Estado</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {roomItems.map(item => {
+                      const meta = parseMeta(item.notas);
+                      const condColor: Record<string, string> = {
+                        excelente: "bg-emerald-500/15 text-emerald-700 border-emerald-200",
+                        buena: "bg-blue-500/15 text-blue-700 border-blue-200",
+                        regular: "bg-amber-500/15 text-amber-700 border-amber-200",
+                        "dañado": "bg-red-500/15 text-red-700 border-red-200",
+                      };
+                      return (
+                        <TableRow key={item.id}>
+                          <TableCell>
+                            <div>
+                              <p className="font-medium">{item.descripcion}</p>
+                              {item.embalaje && <p className="text-xs text-muted-foreground">{item.embalaje}</p>}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {meta.marca && <span>{meta.marca}</span>}
+                            {meta.modelo && <span className="text-muted-foreground"> {meta.modelo}</span>}
+                            {!meta.marca && !meta.modelo && "—"}
+                          </TableCell>
+                          <TableCell><Badge className={condColor[item.condicion] || ""}>{item.condicion}</Badge></TableCell>
+                          <TableCell className="text-right font-mono">${Number(item.valor_declarado || 0).toLocaleString()}</TableCell>
+                          <TableCell className="text-right font-mono">{Number(item.volumen || 0).toFixed(1)}</TableCell>
+                          <TableCell className="text-right font-mono">{Number(item.peso || 0).toFixed(0)}</TableCell>
+                          <TableCell><FragilidadBadge nivel={meta.fragilidad} /></TableCell>
+                          <TableCell><EstadoItemBadge ubicacion={item.ubicacion_bodega} /></TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            )}
           </Card>
-        ))}
-      </div>
+        );
+      })}
+
+      {/* Approval + PDF */}
+      <Card>
+        <CardContent className="pt-6 space-y-4">
+          <div className="flex items-center gap-3">
+            <Checkbox
+              id="aprobacion"
+              checked={clienteAprobado}
+              onCheckedChange={() => !clienteAprobado && handleAprobacion()}
+              disabled={clienteAprobado}
+            />
+            <label htmlFor="aprobacion" className="text-sm font-medium cursor-pointer">
+              Cliente aprobó inventario
+            </label>
+            {clienteAprobado && fechaAprobacion && (
+              <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-200">
+                <CheckCircle2 className="w-3 h-3 mr-1" />
+                {format(new Date(fechaAprobacion), "dd/MM/yyyy HH:mm")}
+              </Badge>
+            )}
+          </div>
+
+          <Button onClick={generatePDF} className="w-full" size="lg">
+            <FileText className="w-4 h-4 mr-2" />
+            Generar Packing List PDF
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }
