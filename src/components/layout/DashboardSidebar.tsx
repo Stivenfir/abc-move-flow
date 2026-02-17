@@ -1,4 +1,4 @@
-import { Home, Package, Users, Globe, FileText, Settings, BarChart3, Warehouse, DollarSign } from "lucide-react";
+import { Home, Package, Users, Globe, FileText, Settings, BarChart3, Warehouse, DollarSign, UserCircle } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -28,6 +28,7 @@ const reportItems = [
 ];
 
 const configItems = [
+  { title: "Portal Cliente", icon: UserCircle, url: "/portal-cliente" },
   { title: "Configuración", icon: Settings, url: "/configuracion" },
 ];
 

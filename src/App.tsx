@@ -15,6 +15,7 @@ import Reportes from "./pages/Reportes";
 import Finanzas from "./pages/Finanzas";
 import Configuracion from "./pages/Configuracion";
 import Auth from "./pages/Auth";
+import PortalCliente from "./pages/PortalCliente";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/reportes" element={<Reportes />} />
           <Route path="/finanzas" element={<Finanzas />} />
           <Route path="/configuracion" element={<Configuracion />} />
+          <Route path="/portal-cliente" element={<PortalCliente />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
