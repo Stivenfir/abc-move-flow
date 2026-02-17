@@ -743,7 +743,7 @@ export type Database = {
           leido: boolean | null
           mensaje: string
           mudanza_id: string
-          remitente_id: string
+          remitente_id: string | null
           tipo: string | null
         }
         Insert: {
@@ -753,7 +753,7 @@ export type Database = {
           leido?: boolean | null
           mensaje: string
           mudanza_id: string
-          remitente_id: string
+          remitente_id?: string | null
           tipo?: string | null
         }
         Update: {
@@ -763,7 +763,7 @@ export type Database = {
           leido?: boolean | null
           mensaje?: string
           mudanza_id?: string
-          remitente_id?: string
+          remitente_id?: string | null
           tipo?: string | null
         }
         Relationships: [

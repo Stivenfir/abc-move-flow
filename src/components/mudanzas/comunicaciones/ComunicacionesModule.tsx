@@ -67,10 +67,9 @@ export function ComunicacionesModule({ mudanzaId }: Props) {
     mutationFn: async () => {
       const { error } = await supabase.from("comunicaciones").insert({
         mudanza_id: mudanzaId,
-        remitente_id: "00000000-0000-0000-0000-000000000000",
         tipo,
         mensaje: asunto ? `[${asunto}] ${mensaje}` : mensaje,
-      });
+      } as any);
       if (error) throw error;
     },
     onSuccess: () => {
