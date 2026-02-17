@@ -12,6 +12,7 @@ import Clientes from "./pages/Clientes";
 import Bodega from "./pages/Bodega";
 import Documentos from "./pages/Documentos";
 import Reportes from "./pages/Reportes";
+import Finanzas from "./pages/Finanzas";
 import Configuracion from "./pages/Configuracion";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/bodega" element={<Bodega />} />
           <Route path="/documentos" element={<Documentos />} />
           <Route path="/reportes" element={<Reportes />} />
+          <Route path="/finanzas" element={<Finanzas />} />
           <Route path="/configuracion" element={<Configuracion />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

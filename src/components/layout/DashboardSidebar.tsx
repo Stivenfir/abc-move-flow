@@ -1,4 +1,4 @@
-import { Home, Package, Users, Globe, FileText, Settings, BarChart3, Warehouse } from "lucide-react";
+import { Home, Package, Users, Globe, FileText, Settings, BarChart3, Warehouse, DollarSign } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -24,6 +24,7 @@ const menuItems = [
 
 const reportItems = [
   { title: "Reportes", icon: BarChart3, url: "/reportes" },
+  { title: "Finanzas", icon: DollarSign, url: "/finanzas" },
 ];
 
 const configItems = [
