@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { Badge } from "@/components/ui/badge";
@@ -76,7 +76,6 @@ export default function Bodega() {
   };
 
   return (
-    <DashboardLayout>
       <div className="container-dashboard space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Gestión de Bodega</h1>
@@ -303,7 +302,6 @@ export default function Bodega() {
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
-    </DashboardLayout>
+    </div>
   );
 }

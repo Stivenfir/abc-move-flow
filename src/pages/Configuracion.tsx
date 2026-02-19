@@ -1,4 +1,4 @@
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -116,7 +116,6 @@ const configSections = [
 
 export default function Configuracion() {
   return (
-    <DashboardLayout>
       <div className="container-dashboard space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Configuración del Sistema</h1>
@@ -234,7 +233,6 @@ export default function Configuracion() {
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
-    </DashboardLayout>
+    </div>
   );
 }

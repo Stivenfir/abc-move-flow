@@ -1,4 +1,4 @@
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatsCard } from "@/components/dashboard/StatsCard";
@@ -96,7 +96,6 @@ export default function Reportes() {
   })).filter(d => d.value > 0);
 
   return (
-    <DashboardLayout>
       <div className="container-dashboard space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Reportes y Análisis</h1>
@@ -243,7 +242,6 @@ export default function Reportes() {
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
-    </DashboardLayout>
+    </div>
   );
 }

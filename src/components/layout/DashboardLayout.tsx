@@ -1,13 +1,9 @@
-import { ReactNode } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "./DashboardSidebar";
 import { DashboardHeader } from "./DashboardHeader";
+import { Outlet } from "react-router-dom";
 
-interface DashboardLayoutProps {
-  children: ReactNode;
-}
-
-export function DashboardLayout({ children }: DashboardLayoutProps) {
+export function DashboardLayout() {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-muted/30">
@@ -15,7 +11,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="flex-1 flex flex-col">
           <DashboardHeader />
           <main className="flex-1 overflow-auto">
-            {children}
+            <Outlet />
           </main>
         </div>
       </div>

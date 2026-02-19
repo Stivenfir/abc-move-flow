@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatsCard } from "@/components/dashboard/StatsCard";
@@ -92,7 +92,6 @@ export default function Finanzas() {
   }).sort((a, b) => b.total - a.total);
 
   return (
-    <DashboardLayout>
       <div className="container-dashboard space-y-6">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
@@ -305,7 +304,6 @@ export default function Finanzas() {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
-    </DashboardLayout>
+    </div>
   );
 }
