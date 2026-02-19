@@ -1,4 +1,4 @@
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useAgente } from "@/hooks/useAgentes";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,33 +35,29 @@ export default function AgenteDetalle() {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
-        <div className="container-dashboard space-y-6">
-          <Skeleton className="h-20 w-full" />
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-32" />
-            ))}
-          </div>
-          <Skeleton className="h-96 w-full" />
+      <div className="container-dashboard space-y-6">
+        <Skeleton className="h-20 w-full" />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-32" />
+          ))}
         </div>
-      </DashboardLayout>
+        <Skeleton className="h-96 w-full" />
+      </div>
     );
   }
 
   if (!agente) {
     return (
-      <DashboardLayout>
-        <div className="container-dashboard">
-          <div className="text-center py-12">
-            <AlertCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-lg font-semibold mb-2">Agente no encontrado</h3>
-            <Button onClick={() => navigate("/agentes")}>
-              Volver a Agentes
-            </Button>
-          </div>
+      <div className="container-dashboard">
+        <div className="text-center py-12">
+          <AlertCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+          <h3 className="text-lg font-semibold mb-2">Agente no encontrado</h3>
+          <Button onClick={() => navigate("/agentes")}>
+            Volver a Agentes
+          </Button>
         </div>
-      </DashboardLayout>
+      </div>
     );
   }
 
@@ -151,7 +147,6 @@ export default function AgenteDetalle() {
       : 0;
 
   return (
-    <DashboardLayout>
       <div className="container-dashboard space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
@@ -709,7 +704,6 @@ export default function AgenteDetalle() {
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
-    </DashboardLayout>
+    </div>
   );
 }

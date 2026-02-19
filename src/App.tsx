@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Mudanzas from "./pages/Mudanzas";
 import MudanzaDetalle from "./pages/MudanzaDetalle";
@@ -28,20 +29,23 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/mudanzas" element={<Mudanzas />} />
-          <Route path="/mudanzas/:id" element={<MudanzaDetalle />} />
-          <Route path="/agentes" element={<Agentes />} />
-          <Route path="/agentes/:id" element={<AgenteDetalle />} />
-          <Route path="/clientes" element={<Clientes />} />
-          <Route path="/aduanas" element={<Aduanas />} />
-          <Route path="/bodega" element={<Bodega />} />
-          <Route path="/documentos" element={<Documentos />} />
-          <Route path="/reportes" element={<Reportes />} />
-          <Route path="/finanzas" element={<Finanzas />} />
-          <Route path="/configuracion" element={<Configuracion />} />
+          {/* Pages with DashboardLayout */}
+          <Route element={<DashboardLayout />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/mudanzas" element={<Mudanzas />} />
+            <Route path="/mudanzas/:id" element={<MudanzaDetalle />} />
+            <Route path="/agentes" element={<Agentes />} />
+            <Route path="/agentes/:id" element={<AgenteDetalle />} />
+            <Route path="/clientes" element={<Clientes />} />
+            <Route path="/aduanas" element={<Aduanas />} />
+            <Route path="/bodega" element={<Bodega />} />
+            <Route path="/documentos" element={<Documentos />} />
+            <Route path="/reportes" element={<Reportes />} />
+            <Route path="/finanzas" element={<Finanzas />} />
+            <Route path="/configuracion" element={<Configuracion />} />
+          </Route>
+          {/* Pages without DashboardLayout */}
           <Route path="/portal-cliente" element={<PortalCliente />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -1,4 +1,4 @@
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,22 +38,18 @@ export default function MudanzaDetalle() {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
-        <div className="container-dashboard space-y-6">
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-96 w-full" />
-        </div>
-      </DashboardLayout>
+      <div className="container-dashboard space-y-6">
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-96 w-full" />
+      </div>
     );
   }
 
   if (!mudanza) {
     return (
-      <DashboardLayout>
-        <div className="container-dashboard">
-          <p>Mudanza no encontrada</p>
-        </div>
-      </DashboardLayout>
+      <div className="container-dashboard">
+        <p>Mudanza no encontrada</p>
+      </div>
     );
   }
 
@@ -76,7 +72,6 @@ export default function MudanzaDetalle() {
       }));
 
   return (
-    <DashboardLayout>
       <div className="container-dashboard space-y-6">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate("/mudanzas")}>
@@ -275,7 +270,6 @@ export default function MudanzaDetalle() {
             </CardContent>
           </Card>
         )}
-      </div>
-    </DashboardLayout>
+    </div>
   );
 }
