@@ -7,7 +7,11 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Operaciones from "./pages/Operaciones";
 import Cotizaciones from "./pages/Cotizaciones";
+import Solicitudes from "./pages/Solicitudes";
+import Seguimiento from "./pages/Seguimiento";
+import Tarifas from "./pages/Tarifas";
 import ConfigUsuarios from "./pages/ConfigUsuarios";
+import ConfigEmpleados from "./pages/ConfigEmpleados";
 import ConfigClientes from "./pages/ConfigClientes";
 import ConfigTablas from "./pages/ConfigTablas";
 import Facturacion from "./pages/Facturacion";
@@ -27,8 +31,12 @@ const App = () => (
           <Route element={<DashboardLayout />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/operaciones" element={<Operaciones />} />
+            <Route path="/comercial/solicitudes" element={<Solicitudes />} />
+            <Route path="/comercial/seguimiento" element={<Seguimiento />} />
+            <Route path="/comercial/tarifas" element={<Tarifas />} />
             <Route path="/cotizaciones" element={<Cotizaciones />} />
             <Route path="/configuracion/usuarios" element={<ConfigUsuarios />} />
+            <Route path="/configuracion/empleados" element={<ConfigEmpleados />} />
             <Route path="/configuracion/clientes" element={<ConfigClientes />} />
             <Route path="/configuracion/proveedores" element={<ConfigClientes />} />
             <Route path="/configuracion/tablas" element={<ConfigTablas />} />
