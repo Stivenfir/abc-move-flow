@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { FileText, Plus, Search, Download } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { mockCotizaciones } from "@/lib/logisticsData";
 
 const estadoColor: Record<string, string> = {
@@ -17,6 +18,7 @@ const estadoColor: Record<string, string> = {
 };
 
 export default function Cotizaciones() {
+  const navigate = useNavigate();
   const [busqueda, setBusqueda] = useState("");
   const [filtroEstado, setFiltroEstado] = useState("todos");
 
@@ -95,7 +97,7 @@ export default function Cotizaciones() {
             </TableHeader>
             <TableBody>
               {filtradas.map((cot) => (
-                <TableRow key={cot.id} className="cursor-pointer hover:bg-muted/50">
+                <TableRow key={cot.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/cotizaciones/${cot.id}`)}>
                   <TableCell className="font-medium text-sm">{cot.consecutivo}</TableCell>
                   <TableCell className="text-sm max-w-[180px] truncate">{cot.cliente}</TableCell>
                   <TableCell>

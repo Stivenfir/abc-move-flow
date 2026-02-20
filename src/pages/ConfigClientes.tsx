@@ -7,9 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building2, Plus, Search, Download } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { mockClientes, mockProveedores } from "@/lib/logisticsData";
 
 export default function ConfigClientes() {
+  const navigate = useNavigate();
   const [busqueda, setBusqueda] = useState("");
   const [filtroEstado, setFiltroEstado] = useState("todos");
   const [tab, setTab] = useState("clientes");
@@ -92,7 +94,7 @@ export default function ConfigClientes() {
                 </TableHeader>
                 <TableBody>
                   {clientesFiltrados.map((c) => (
-                    <TableRow key={c.id} className="cursor-pointer hover:bg-muted/50">
+                    <TableRow key={c.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/configuracion/clientes/${c.id}`)}>
                       <TableCell className="font-medium text-sm">{c.razonSocial}</TableCell>
                       <TableCell className="text-xs font-mono">{c.nit}</TableCell>
                       <TableCell>

@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Search, Plus, Eye, FileText, Filter } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface Solicitud {
   id: string;
@@ -41,6 +42,7 @@ const mockSolicitudes: Solicitud[] = [
 ];
 
 export default function Solicitudes() {
+  const navigate = useNavigate();
   const [busqueda, setBusqueda] = useState("");
   const [filtroOperacion, setFiltroOperacion] = useState<string>("todos");
   const [filtroTransporte, setFiltroTransporte] = useState<string>("todos");
@@ -138,7 +140,7 @@ export default function Solicitudes() {
               </TableHeader>
               <TableBody>
                 {paginadas.map(s => (
-                  <TableRow key={s.id}>
+                  <TableRow key={s.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/comercial/solicitudes/${s.id}`)}>
                     <TableCell className="font-mono font-medium">{s.consecutivo}</TableCell>
                     <TableCell className="max-w-[180px] truncate">{s.cliente}</TableCell>
                     <TableCell><Badge variant="outline">{s.lineaProyecto}</Badge></TableCell>

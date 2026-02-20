@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Ship, Plus, Search, Download, Filter } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { mockOperaciones, type Operacion } from "@/lib/logisticsData";
 
 const estadoColor: Record<string, string> = {
@@ -18,6 +19,7 @@ const estadoColor: Record<string, string> = {
 };
 
 export default function Operaciones() {
+  const navigate = useNavigate();
   const [busqueda, setBusqueda] = useState("");
   const [filtroTipo, setFiltroTipo] = useState<string>("todos");
   const [filtroEstado, setFiltroEstado] = useState<string>("todos");
@@ -49,7 +51,7 @@ export default function Operaciones() {
           <h1 className="text-2xl font-bold">Operaciones</h1>
           <p className="text-sm text-muted-foreground">Gestión de embarques e importaciones/exportaciones</p>
         </div>
-        <Button className="bg-accent hover:bg-accent-hover">
+        <Button className="bg-accent hover:bg-accent-hover" onClick={() => navigate("/operaciones/nuevo")}>
           <Plus className="w-4 h-4 mr-2" />
           Nueva Operación
         </Button>
@@ -130,7 +132,7 @@ export default function Operaciones() {
             </TableHeader>
             <TableBody>
               {datosPagina.map((op) => (
-                <TableRow key={op.id} className="cursor-pointer hover:bg-muted/50">
+                <TableRow key={op.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/operaciones/${op.id}`)}>
                   <TableCell className="font-medium text-sm">{op.consecutivo}</TableCell>
                   <TableCell className="text-sm max-w-[180px] truncate">{op.cliente}</TableCell>
                   <TableCell>
