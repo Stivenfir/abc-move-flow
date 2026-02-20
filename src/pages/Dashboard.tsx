@@ -1,96 +1,131 @@
-import { StatsCard } from "@/components/dashboard/StatsCard";
-import { Package, TrendingUp, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { EstadoBadge } from "@/components/mudanzas/EstadoBadge";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useMudanzas } from "@/hooks/useMudanzas";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Ship, Plane, TrendingUp, DollarSign, AlertCircle, ArrowUpRight, Package, Clock } from "lucide-react";
+import { mockOperaciones, mockCotizaciones, getKPIs } from "@/lib/logisticsData";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { data: mudanzas, isLoading } = useMudanzas();
-  
-  const mudanzasActivas = mudanzas?.filter(m => m.estado !== "cerrado").length || 0;
-  const mudanzasEnTransito = mudanzas?.filter(m => m.estado === "transito").length || 0;
-  const mudanzasUrgentes = mudanzas?.filter(m => m.prioridad === "urgente").length || 0;
-  
-  if (isLoading) {
-    return (
-      <div className="container-dashboard space-y-6">
-        <Skeleton className="h-20 w-full" />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32" />)}
-        </div>
-      </div>
-    );
-  }
+  const kpis = getKPIs();
+
+  const estadoColor: Record<string, string> = {
+    "En Tránsito": "bg-info/10 text-info border-info/20",
+    "En Puerto": "bg-warning/10 text-warning border-warning/20",
+    "En Aduana": "bg-accent/10 text-accent border-accent/20",
+    "Entregado": "bg-success/10 text-success border-success/20",
+    "Pendiente": "bg-muted text-muted-foreground border-border",
+    "Cancelado": "bg-destructive/10 text-destructive border-destructive/20",
+  };
 
   return (
     <div className="container-dashboard space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard Operativo</h1>
-          <p className="text-muted-foreground">Resumen de mudanzas y operaciones</p>
+          <h1 className="text-2xl font-bold">Dashboard Operativo</h1>
+          <p className="text-muted-foreground text-sm">Resumen de operaciones logísticas internacionales</p>
         </div>
-        <Button onClick={() => navigate("/mudanzas")} size="lg" className="bg-accent hover:bg-accent-hover">
-          Ver Todas las Mudanzas
+        <Button onClick={() => navigate("/operaciones")} className="bg-accent hover:bg-accent-hover">
+          <Ship className="w-4 h-4 mr-2" />
+          Ver Operaciones
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatsCard
-          title="Mudanzas Activas"
-          value={mudanzasActivas}
-          change={{ value: "+12%", trend: "up" }}
-          icon={Package}
-        />
-        <StatsCard
-          title="En Tránsito"
-          value={mudanzasEnTransito}
-          icon={TrendingUp}
-        />
-        <StatsCard
-          title="Urgentes"
-          value={mudanzasUrgentes}
-          icon={AlertCircle}
-          className="border-destructive/20"
-        />
-        <StatsCard
-          title="Completadas Este Mes"
-          value={8}
-          change={{ value: "+8%", trend: "up" }}
-          icon={CheckCircle}
-        />
+      {/* KPI Cards */}
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+        <Card className="card-hover">
+          <CardContent className="pt-5 pb-4">
+            <div className="flex items-center justify-between mb-2">
+              <Package className="w-5 h-5 text-primary" />
+              <ArrowUpRight className="w-4 h-4 text-success" />
+            </div>
+            <p className="text-2xl font-bold">{kpis.activas}</p>
+            <p className="text-xs text-muted-foreground">Operaciones Activas</p>
+          </CardContent>
+        </Card>
+        <Card className="card-hover">
+          <CardContent className="pt-5 pb-4">
+            <div className="flex items-center justify-between mb-2">
+              <Ship className="w-5 h-5 text-info" />
+            </div>
+            <p className="text-2xl font-bold">{kpis.enTransito}</p>
+            <p className="text-xs text-muted-foreground">En Tránsito</p>
+          </CardContent>
+        </Card>
+        <Card className="card-hover">
+          <CardContent className="pt-5 pb-4">
+            <div className="flex items-center justify-between mb-2">
+              <TrendingUp className="w-5 h-5 text-success" />
+            </div>
+            <p className="text-2xl font-bold">{kpis.importaciones}</p>
+            <p className="text-xs text-muted-foreground">Importaciones</p>
+          </CardContent>
+        </Card>
+        <Card className="card-hover">
+          <CardContent className="pt-5 pb-4">
+            <div className="flex items-center justify-between mb-2">
+              <Plane className="w-5 h-5 text-accent" />
+            </div>
+            <p className="text-2xl font-bold">{kpis.exportaciones}</p>
+            <p className="text-xs text-muted-foreground">Exportaciones</p>
+          </CardContent>
+        </Card>
+        <Card className="card-hover">
+          <CardContent className="pt-5 pb-4">
+            <div className="flex items-center justify-between mb-2">
+              <DollarSign className="w-5 h-5 text-warning" />
+            </div>
+            <p className="text-2xl font-bold">USD ${(kpis.valorTotal / 1000).toFixed(0)}K</p>
+            <p className="text-xs text-muted-foreground">Valor Total</p>
+          </CardContent>
+        </Card>
+        <Card className="card-hover">
+          <CardContent className="pt-5 pb-4">
+            <div className="flex items-center justify-between mb-2">
+              <Clock className="w-5 h-5 text-destructive" />
+            </div>
+            <p className="text-2xl font-bold">{kpis.pendientes}</p>
+            <p className="text-xs text-muted-foreground">Pendientes</p>
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Operaciones Recientes */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-primary" />
-              Mudanzas Recientes
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Ship className="w-4 h-4 text-primary" />
+              Operaciones Recientes
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {mudanzas?.slice(0, 3).map((mudanza) => (
+            <div className="space-y-3">
+              {mockOperaciones.filter(o => o.activa).slice(0, 5).map((op) => (
                 <div
-                  key={mudanza.id}
-                  className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors cursor-pointer"
-                  onClick={() => navigate(`/mudanzas/${mudanza.id}`)}
+                  key={op.id}
+                  className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors cursor-pointer"
+                  onClick={() => navigate("/operaciones")}
                 >
-                  <div className="space-y-1">
-                    <p className="font-medium">{mudanza.numero}</p>
-                    <p className="text-sm text-muted-foreground">{mudanza.cliente?.nombre}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {mudanza.origen_ciudad} → {mudanza.destino_ciudad}
+                  <div className="space-y-1 min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-sm">{op.consecutivo}</p>
+                      <Badge variant="outline" className="text-[10px] capitalize">
+                        {op.tipoOperacion}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground truncate">{op.cliente}</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {op.origen} → {op.destino}
                     </p>
                   </div>
-                  <div className="text-right space-y-2">
-                    <EstadoBadge estado={mudanza.estado} />
-                    <p className="text-xs text-muted-foreground">
-                      Est: {mudanza.fecha_estimada ? new Date(mudanza.fecha_estimada).toLocaleDateString('es-CO') : 'N/A'}
+                  <div className="text-right space-y-1 ml-3">
+                    <Badge className={`text-[10px] border ${estadoColor[op.estado] || ""}`} variant="outline">
+                      {op.estado}
+                    </Badge>
+                    <p className="text-[11px] text-muted-foreground">
+                      USD ${op.valorUSD.toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -99,39 +134,66 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-accent" />
-              Alertas y Pendientes
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-warning/10 border border-warning/20">
-                <AlertCircle className="w-5 h-5 text-warning mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium">Documento pendiente</p>
-                  <p className="text-xs text-muted-foreground">Algunas mudanzas requieren documentación</p>
+        {/* Cotizaciones Pendientes + Alertas */}
+        <div className="space-y-6">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-warning" />
+                Cotizaciones Pendientes
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {mockCotizaciones.filter(c => c.estado === "Enviada" || c.estado === "Borrador").map((cot) => (
+                  <div
+                    key={cot.id}
+                    className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors cursor-pointer"
+                    onClick={() => navigate("/cotizaciones")}
+                  >
+                    <div className="space-y-1">
+                      <p className="font-medium text-sm">{cot.consecutivo}</p>
+                      <p className="text-xs text-muted-foreground">{cot.cliente}</p>
+                    </div>
+                    <div className="text-right space-y-1">
+                      <Badge variant={cot.estado === "Borrador" ? "secondary" : "outline"} className="text-[10px]">
+                        {cot.estado}
+                      </Badge>
+                      <p className="text-xs font-medium">USD ${cot.valorUSD.toLocaleString()}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-destructive" />
+                Alertas del Sistema
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-warning/10 border border-warning/20">
+                  <AlertCircle className="w-4 h-4 text-warning mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium">2 operaciones próximas a ETA</p>
+                    <p className="text-xs text-muted-foreground">OPE-2026-003, OPE-2026-006</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-info/10 border border-info/20">
+                  <Clock className="w-4 h-4 text-info mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium">1 cotización por vencer</p>
+                    <p className="text-xs text-muted-foreground">COT-2026-002 vence en 20 días</p>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-info/10 border border-info/20">
-                <Clock className="w-5 h-5 text-info mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium">Inspección programada</p>
-                  <p className="text-xs text-muted-foreground">Verifica el calendario de inspecciones</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-success/10 border border-success/20">
-                <CheckCircle className="w-5 h-5 text-success mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium">Sistema operativo</p>
-                  <p className="text-xs text-muted-foreground">Todas las mudanzas están siendo rastreadas</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

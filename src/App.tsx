@@ -5,19 +5,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
-import Mudanzas from "./pages/Mudanzas";
-import MudanzaDetalle from "./pages/MudanzaDetalle";
-import Aduanas from "./pages/Aduanas";
-import Agentes from "./pages/Agentes";
-import AgenteDetalle from "./pages/AgenteDetalle";
-import Clientes from "./pages/Clientes";
-import Bodega from "./pages/Bodega";
-import Documentos from "./pages/Documentos";
-import Reportes from "./pages/Reportes";
-import Finanzas from "./pages/Finanzas";
-import Configuracion from "./pages/Configuracion";
-import Auth from "./pages/Auth";
-import PortalCliente from "./pages/PortalCliente";
+import Operaciones from "./pages/Operaciones";
+import Cotizaciones from "./pages/Cotizaciones";
+import ConfigUsuarios from "./pages/ConfigUsuarios";
+import ConfigClientes from "./pages/ConfigClientes";
+import ConfigTablas from "./pages/ConfigTablas";
+import Facturacion from "./pages/Facturacion";
+import Pagos from "./pages/Pagos";
+import ReportesFinancieros from "./pages/ReportesFinancieros";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,23 +24,18 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          {/* Pages with DashboardLayout */}
           <Route element={<DashboardLayout />}>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/mudanzas" element={<Mudanzas />} />
-            <Route path="/mudanzas/:id" element={<MudanzaDetalle />} />
-            <Route path="/agentes" element={<Agentes />} />
-            <Route path="/agentes/:id" element={<AgenteDetalle />} />
-            <Route path="/clientes" element={<Clientes />} />
-            <Route path="/aduanas" element={<Aduanas />} />
-            <Route path="/bodega" element={<Bodega />} />
-            <Route path="/documentos" element={<Documentos />} />
-            <Route path="/reportes" element={<Reportes />} />
-            <Route path="/finanzas" element={<Finanzas />} />
-            <Route path="/configuracion" element={<Configuracion />} />
+            <Route path="/operaciones" element={<Operaciones />} />
+            <Route path="/cotizaciones" element={<Cotizaciones />} />
+            <Route path="/configuracion/usuarios" element={<ConfigUsuarios />} />
+            <Route path="/configuracion/clientes" element={<ConfigClientes />} />
+            <Route path="/configuracion/proveedores" element={<ConfigClientes />} />
+            <Route path="/configuracion/tablas" element={<ConfigTablas />} />
+            <Route path="/finanzas/facturacion" element={<Facturacion />} />
+            <Route path="/finanzas/pagos" element={<Pagos />} />
+            <Route path="/finanzas/reportes" element={<ReportesFinancieros />} />
           </Route>
-          {/* Pages without DashboardLayout */}
-          <Route path="/portal-cliente" element={<PortalCliente />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
