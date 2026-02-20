@@ -1,18 +1,8 @@
-import { Home, Ship, FileText, Settings, DollarSign, ChevronDown } from "lucide-react";
+import { Home, Ship, FileText, Settings, DollarSign, ChevronDown, Briefcase, ClipboardList, TrendingUp, Receipt } from "lucide-react";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarHeader,
-  SidebarFooter,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
+  Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
+  SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter,
+  SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton,
 } from "@/components/ui/sidebar";
 import { Link, useLocation } from "react-router-dom";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -20,11 +10,21 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 const mainItems = [
   { title: "Dashboard", icon: Home, url: "/" },
   { title: "Operaciones", icon: Ship, url: "/operaciones" },
-  { title: "Cotización", icon: FileText, url: "/cotizaciones" },
+];
+
+const comercialSubItems = [
+  { title: "Solicitudes de Servicio", url: "/comercial/solicitudes" },
+  { title: "Seguimiento Comercial", url: "/comercial/seguimiento" },
+  { title: "Tarifas Repecev", url: "/comercial/tarifas" },
+];
+
+const cotizacionItems = [
+  { title: "Cotizaciones", icon: FileText, url: "/cotizaciones" },
 ];
 
 const configSubItems = [
   { title: "Usuarios por Rol", url: "/configuracion/usuarios" },
+  { title: "Empleados", url: "/configuracion/empleados" },
   { title: "Clientes", url: "/configuracion/clientes" },
   { title: "Proveedores", url: "/configuracion/proveedores" },
   { title: "Tablas Básicas", url: "/configuracion/tablas" },
@@ -44,6 +44,7 @@ export function DashboardSidebar() {
     return location.pathname.startsWith(url);
   };
 
+  const isComercialActive = comercialSubItems.some(item => isActive(item.url));
   const isConfigActive = configSubItems.some(item => isActive(item.url));
   const isFinanzasActive = finanzasSubItems.some(item => isActive(item.url));
 
@@ -62,12 +63,60 @@ export function DashboardSidebar() {
       </SidebarHeader>
       
       <SidebarContent>
-        {/* Main Navigation */}
+        {/* Principal */}
         <SidebarGroup>
           <SidebarGroupLabel>Principal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {mainItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                    <Link to={item.url} className="flex items-center gap-3">
+                      <item.icon className="w-4 h-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Comercial - Collapsible */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <Collapsible defaultOpen={isComercialActive} className="group/collapsible">
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton isActive={isComercialActive}>
+                      <Briefcase className="w-4 h-4" />
+                      <span>Comercial</span>
+                      <ChevronDown className="ml-auto w-4 h-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {comercialSubItems.map((item) => (
+                        <SidebarMenuSubItem key={item.title}>
+                          <SidebarMenuSubButton asChild isActive={isActive(item.url)}>
+                            <Link to={item.url}>{item.title}</Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Cotización */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {cotizacionItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <Link to={item.url} className="flex items-center gap-3">
@@ -148,12 +197,8 @@ export function DashboardSidebar() {
             MT
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-sidebar-foreground truncate">
-              Miguel Torres
-            </p>
-            <p className="text-xs text-sidebar-foreground/60 truncate">
-              Administrador
-            </p>
+            <p className="text-sm font-medium text-sidebar-foreground truncate">Miguel Torres</p>
+            <p className="text-xs text-sidebar-foreground/60 truncate">Administrador</p>
           </div>
         </div>
       </SidebarFooter>
