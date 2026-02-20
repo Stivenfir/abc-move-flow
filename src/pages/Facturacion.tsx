@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DollarSign, Plus, FileText } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const mockFacturas = [
   { id: "1", numero: "FAC-2026-001", cliente: "MABE COLOMBIA SAS", operacion: "OPE-2026-001", concepto: "Flete Marítimo FCL", montoUSD: 4500, estado: "Pagada", fecha: "2026-02-01" },
@@ -20,6 +21,7 @@ const estadoColor: Record<string, string> = {
 };
 
 export default function Facturacion() {
+  const navigate = useNavigate();
   const totalPendiente = mockFacturas.filter(f => f.estado === "Pendiente" || f.estado === "Vencida").reduce((s, f) => s + f.montoUSD, 0);
 
   return (
@@ -78,7 +80,7 @@ export default function Facturacion() {
             </TableHeader>
             <TableBody>
               {mockFacturas.map((f) => (
-                <TableRow key={f.id} className="cursor-pointer hover:bg-muted/50">
+                <TableRow key={f.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/finanzas/facturacion/${f.id}`)}>
                   <TableCell className="font-medium text-sm">{f.numero}</TableCell>
                   <TableCell className="text-sm max-w-[180px] truncate">{f.cliente}</TableCell>
                   <TableCell className="text-xs font-mono">{f.operacion}</TableCell>
