@@ -5,7 +5,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export function DashboardHeader() {
   return (
-    <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-6">
+    <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-6">
       <SidebarTrigger />
       
       <div className="flex-1 flex items-center gap-4">
@@ -13,8 +13,8 @@ export function DashboardHeader() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Buscar mudanzas, clientes..."
-            className="pl-10"
+            placeholder="Buscar operaciones, clientes... (Ctrl+K)"
+            className="pl-10 h-9"
           />
         </div>
       </div>
