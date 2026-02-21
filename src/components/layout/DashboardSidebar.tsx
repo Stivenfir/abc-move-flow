@@ -1,4 +1,4 @@
-import { Home, Ship, FileText, Settings, DollarSign, ChevronDown, Briefcase, ClipboardList, TrendingUp, Receipt } from "lucide-react";
+import { Home, Ship, FileText, Settings, DollarSign, ChevronDown, Briefcase, ClipboardList, TrendingUp, Receipt, FileBox } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter,
@@ -16,6 +16,11 @@ const comercialSubItems = [
   { title: "Solicitudes de Servicio", url: "/comercial/solicitudes" },
   { title: "Seguimiento Comercial", url: "/comercial/seguimiento" },
   { title: "Tarifas Repecev", url: "/comercial/tarifas" },
+];
+
+const documentacionSubItems = [
+  { title: "Instrucciones de Embarque", url: "/documentacion/instrucciones" },
+  { title: "Gestión de BL", url: "/documentacion/bl" },
 ];
 
 const cotizacionItems = [
@@ -45,6 +50,7 @@ export function DashboardSidebar() {
   };
 
   const isComercialActive = comercialSubItems.some(item => isActive(item.url));
+  const isDocumentacionActive = documentacionSubItems.some(item => isActive(item.url));
   const isConfigActive = configSubItems.some(item => isActive(item.url));
   const isFinanzasActive = finanzasSubItems.some(item => isActive(item.url));
 
@@ -126,6 +132,36 @@ export function DashboardSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Documentación - Collapsible */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <Collapsible defaultOpen={isDocumentacionActive} className="group/collapsible">
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton isActive={isDocumentacionActive}>
+                      <FileBox className="w-4 h-4" />
+                      <span>Documentación</span>
+                      <ChevronDown className="ml-auto w-4 h-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {documentacionSubItems.map((item) => (
+                        <SidebarMenuSubItem key={item.title}>
+                          <SidebarMenuSubButton asChild isActive={isActive(item.url)}>
+                            <Link to={item.url}>{item.title}</Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
