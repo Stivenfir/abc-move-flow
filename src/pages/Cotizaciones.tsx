@@ -39,7 +39,7 @@ export default function Cotizaciones() {
           <h1 className="text-2xl font-bold">Cotizaciones</h1>
           <p className="text-sm text-muted-foreground">Gestión de tarifas y cotizaciones</p>
         </div>
-        <Button className="bg-accent hover:bg-accent-hover">
+        <Button className="bg-accent hover:bg-accent-hover" onClick={() => navigate("/cotizaciones/nuevo")}>
           <Plus className="w-4 h-4 mr-2" />
           Nueva Cotización
         </Button>
