@@ -31,7 +31,7 @@ export default function Facturacion() {
           <h1 className="text-2xl font-bold">Facturación</h1>
           <p className="text-sm text-muted-foreground">Gestión de facturación y causación</p>
         </div>
-        <Button className="bg-accent hover:bg-accent-hover">
+        <Button className="bg-accent hover:bg-accent-hover" onClick={() => navigate("/finanzas/facturacion/nuevo")}>
           <Plus className="w-4 h-4 mr-2" />
           Nueva Factura
         </Button>

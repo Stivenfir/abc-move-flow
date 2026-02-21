@@ -25,6 +25,7 @@ import ReportesFinancieros from "./pages/ReportesFinancieros";
 import InstruccionesEmbarque from "./pages/InstruccionesEmbarque";
 import InstruccionDetalle from "./pages/InstruccionDetalle";
 import BLManager from "./pages/BLManager";
+import BLDetalle from "./pages/BLDetalle";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -59,6 +60,7 @@ const App = () => (
             <Route path="/documentacion/instrucciones" element={<InstruccionesEmbarque />} />
             <Route path="/documentacion/instrucciones/:id" element={<InstruccionDetalle />} />
             <Route path="/documentacion/bl" element={<BLManager />} />
+            <Route path="/documentacion/bl/:id" element={<BLDetalle />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

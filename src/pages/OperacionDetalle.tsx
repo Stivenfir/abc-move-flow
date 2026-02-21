@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Save, List } from "lucide-react";
+import { ArrowLeft, Save, List, FileText } from "lucide-react";
+import { toast } from "sonner";
 import { mockOperaciones, mockClientes, mockUsuarios } from "@/lib/logisticsData";
 
 export default function OperacionDetalle() {
@@ -289,15 +290,24 @@ export default function OperacionDetalle() {
       {/* Action Buttons */}
       <div className="flex items-center gap-3 pb-8">
         {isNew ? (
-          <Button className="bg-accent hover:bg-accent-hover">
+          <Button className="bg-accent hover:bg-accent-hover" onClick={() => toast("Registro generado exitosamente")}>
             <Save className="w-4 h-4 mr-2" />
             Insertar
           </Button>
         ) : (
-          <Button className="bg-accent hover:bg-accent-hover">
-            <Save className="w-4 h-4 mr-2" />
-            Actualizar
-          </Button>
+          <>
+            <Button className="bg-accent hover:bg-accent-hover" onClick={() => toast("Registro actualizado correctamente")}>
+              <Save className="w-4 h-4 mr-2" />
+              Actualizar
+            </Button>
+            <Button variant="secondary" onClick={() => {
+              navigate(`/documentacion/instrucciones/nuevo?operacionId=${id}`);
+              toast("Registro generado exitosamente");
+            }}>
+              <FileText className="w-4 h-4 mr-2" />
+              Generar Instrucción de Embarque
+            </Button>
+          </>
         )}
         <Button variant="outline" onClick={() => navigate("/operaciones")}>
           <List className="w-4 h-4 mr-2" />
