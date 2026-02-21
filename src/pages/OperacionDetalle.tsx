@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { mockOperaciones, mockClientes, mockUsuarios } from "@/lib/logisticsData
 
 export default function OperacionDetalle() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const operacion = id && id !== "nuevo" ? mockOperaciones.find(o => o.id === id) : null;
   const isNew = id === "nuevo";
@@ -18,9 +19,9 @@ export default function OperacionDetalle() {
   const [form, setForm] = useState({
     consecutivo: operacion?.consecutivo || "",
     fechaCreacion: operacion?.fechaCreacion || new Date().toISOString().split("T")[0],
-    solicitudServicio: "",
-    cliente: operacion?.cliente || "",
-    comercial: operacion?.comercial || "",
+    solicitudServicio: searchParams.get("solicitudId") ? `SOL-2026-${searchParams.get("solicitudId")?.padStart(3, "0")}` : "",
+    cliente: operacion?.cliente || searchParams.get("cliente") || "",
+    comercial: operacion?.comercial || searchParams.get("comercial") || "",
     lineaProyecto: operacion?.lineaProyecto || "",
     fechaCondicion: operacion?.fechaCondicion || "",
     customerService: "",
@@ -43,8 +44,8 @@ export default function OperacionDetalle() {
     // Cierre DO
     fechaEntregaDOContabilidad: "",
     fechaContabilidad: "",
-    tipoOperacion: operacion?.tipoOperacion || "Importación",
-    modoTransporte: operacion?.modoTransporte || "Marítimo",
+    tipoOperacion: operacion?.tipoOperacion || searchParams.get("tipoOperacion") || "Importación",
+    modoTransporte: operacion?.modoTransporte || searchParams.get("modoTransporte") || "Marítimo",
     estado: operacion?.estado || "Pendiente",
     origen: operacion?.origen || "",
     destino: operacion?.destino || "",
@@ -52,7 +53,7 @@ export default function OperacionDetalle() {
     peso: operacion?.peso?.toString() || "",
     volumen: operacion?.volumen?.toString() || "",
     contenedores: operacion?.contenedores?.toString() || "",
-    tipoNegociacion: operacion?.tipoNegociacion || "",
+    tipoNegociacion: operacion?.tipoNegociacion || searchParams.get("tipoNegociacion") || "",
   });
 
   const update = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }));

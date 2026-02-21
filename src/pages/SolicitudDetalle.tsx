@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Save, List } from "lucide-react";
+import { ArrowLeft, Save, List, FilePlus } from "lucide-react";
 import { mockClientes, mockUsuarios } from "@/lib/logisticsData";
 
 // Reuse the mock from Solicitudes page inline
@@ -78,6 +78,23 @@ export default function SolicitudDetalle() {
         <Button className="bg-accent hover:bg-accent-hover">
           <Save className="w-4 h-4 mr-2" />
           Actualizar
+        </Button>
+        <Button
+          variant="default"
+          onClick={() => {
+            const params = new URLSearchParams({
+              solicitudId: sol.id,
+              cliente: sol.cliente,
+              modoTransporte: sol.modoTransporte === "Marítimo" ? "Marítimo" : sol.modoTransporte === "Aéreo" ? "Aéreo" : "Terrestre",
+              tipoOperacion: sol.tipoOperacion === "Importación" ? "Importación" : "Exportación",
+              tipoNegociacion: sol.tipoNegociacion,
+              comercial: sol.comercial,
+            });
+            navigate(`/operaciones/nuevo?${params.toString()}`);
+          }}
+        >
+          <FilePlus className="w-4 h-4 mr-2" />
+          Generar DO
         </Button>
         <Button variant="outline" onClick={() => navigate("/comercial/solicitudes")}>
           <List className="w-4 h-4 mr-2" />
