@@ -5,27 +5,19 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
-import Operaciones from "./pages/Operaciones";
-import OperacionDetalle from "./pages/OperacionDetalle";
-import Cotizaciones from "./pages/Cotizaciones";
-import CotizacionDetalle from "./pages/CotizacionDetalle";
-import Solicitudes from "./pages/Solicitudes";
-import SolicitudDetalle from "./pages/SolicitudDetalle";
-import Seguimiento from "./pages/Seguimiento";
-import Tarifas from "./pages/Tarifas";
-import ConfigUsuarios from "./pages/ConfigUsuarios";
-import ConfigEmpleados from "./pages/ConfigEmpleados";
-import ConfigClientes from "./pages/ConfigClientes";
-import ClienteDetalle from "./pages/ClienteDetalle";
-import ConfigTablas from "./pages/ConfigTablas";
-import Facturacion from "./pages/Facturacion";
-import FacturaDetalle from "./pages/FacturaDetalle";
-import Pagos from "./pages/Pagos";
-import ReportesFinancieros from "./pages/ReportesFinancieros";
-import InstruccionesEmbarque from "./pages/InstruccionesEmbarque";
-import InstruccionDetalle from "./pages/InstruccionDetalle";
-import BLManager from "./pages/BLManager";
-import BLDetalle from "./pages/BLDetalle";
+import Mudanzas from "./pages/Mudanzas";
+import MudanzaDetalle from "./pages/MudanzaDetalle";
+import Aduanas from "./pages/Aduanas";
+import Agentes from "./pages/Agentes";
+import AgenteDetalle from "./pages/AgenteDetalle";
+import Clientes from "./pages/Clientes";
+import Bodega from "./pages/Bodega";
+import Documentos from "./pages/Documentos";
+import Reportes from "./pages/Reportes";
+import Finanzas from "./pages/Finanzas";
+import Configuracion from "./pages/Configuracion";
+import Auth from "./pages/Auth";
+import PortalCliente from "./pages/PortalCliente";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,31 +29,23 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Pages with DashboardLayout */}
           <Route element={<DashboardLayout />}>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/operaciones" element={<Operaciones />} />
-            <Route path="/operaciones/:id" element={<OperacionDetalle />} />
-            <Route path="/cotizaciones" element={<Cotizaciones />} />
-            <Route path="/cotizaciones/:id" element={<CotizacionDetalle />} />
-            <Route path="/comercial/solicitudes" element={<Solicitudes />} />
-            <Route path="/comercial/solicitudes/:id" element={<SolicitudDetalle />} />
-            <Route path="/comercial/seguimiento" element={<Seguimiento />} />
-            <Route path="/comercial/tarifas" element={<Tarifas />} />
-            <Route path="/configuracion/usuarios" element={<ConfigUsuarios />} />
-            <Route path="/configuracion/empleados" element={<ConfigEmpleados />} />
-            <Route path="/configuracion/clientes" element={<ConfigClientes />} />
-            <Route path="/configuracion/clientes/:id" element={<ClienteDetalle />} />
-            <Route path="/configuracion/proveedores" element={<ConfigClientes />} />
-            <Route path="/configuracion/tablas" element={<ConfigTablas />} />
-            <Route path="/finanzas/facturacion" element={<Facturacion />} />
-            <Route path="/finanzas/facturacion/:id" element={<FacturaDetalle />} />
-            <Route path="/finanzas/pagos" element={<Pagos />} />
-            <Route path="/finanzas/reportes" element={<ReportesFinancieros />} />
-            <Route path="/documentacion/instrucciones" element={<InstruccionesEmbarque />} />
-            <Route path="/documentacion/instrucciones/:id" element={<InstruccionDetalle />} />
-            <Route path="/documentacion/bl" element={<BLManager />} />
-            <Route path="/documentacion/bl/:id" element={<BLDetalle />} />
+            <Route path="/mudanzas" element={<Mudanzas />} />
+            <Route path="/mudanzas/:id" element={<MudanzaDetalle />} />
+            <Route path="/agentes" element={<Agentes />} />
+            <Route path="/agentes/:id" element={<AgenteDetalle />} />
+            <Route path="/clientes" element={<Clientes />} />
+            <Route path="/aduanas" element={<Aduanas />} />
+            <Route path="/bodega" element={<Bodega />} />
+            <Route path="/documentos" element={<Documentos />} />
+            <Route path="/reportes" element={<Reportes />} />
+            <Route path="/finanzas" element={<Finanzas />} />
+            <Route path="/configuracion" element={<Configuracion />} />
           </Route>
+          {/* Pages without DashboardLayout */}
+          <Route path="/portal-cliente" element={<PortalCliente />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
